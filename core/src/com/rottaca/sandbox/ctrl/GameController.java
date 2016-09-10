@@ -6,6 +6,7 @@ import com.rottaca.sandbox.data.Bullet;
 import com.rottaca.sandbox.data.Chunk;
 import com.rottaca.sandbox.data.FieldConfig;
 import com.rottaca.sandbox.data.Level;
+import com.rottaca.sandbox.data.Options;
 import com.rottaca.sandbox.gui.GameScreen;
 
 import java.util.ArrayList;
@@ -127,8 +128,9 @@ public class GameController implements Runnable {
                     // TODO Synchronize ?
                 else if (x < getGameFieldWidth() && y < getGameFieldHeight() && level.gameGrid.getField(y, x) >= 0) {
                     level.gameGrid.executeExplosion(y, x, b.getDamage());
-                    explosionSound.play();
                     removedBullets.add(b);
+                    if (Options.enableSoundEffects)
+                        explosionSound.play();
                 }
             }
             // Remove from bullet list

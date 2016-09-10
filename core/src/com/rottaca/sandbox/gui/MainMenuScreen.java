@@ -65,6 +65,12 @@ public class MainMenuScreen extends ScreenAdapter {
                 sandBox.goToScreen(SandBox.ScreenName.GAME);
             }
         });
+        buttonOptions.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                sandBox.goToScreen(SandBox.ScreenName.OPTIONS);
+            }
+        });
         buttonAbout.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

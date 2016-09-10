@@ -10,9 +10,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.rottaca.sandbox.data.Options;
 import com.rottaca.sandbox.gui.AboutScreen;
 import com.rottaca.sandbox.gui.GameScreen;
 import com.rottaca.sandbox.gui.MainMenuScreen;
+import com.rottaca.sandbox.gui.OptionsScreen;
 
 public class SandBox extends Game {
     SpriteBatch batch;
@@ -25,7 +27,6 @@ public class SandBox extends Game {
     public Screen activeScreen = null;
 
     private Music backgroundMusic;
-
 
     public static BitmapFont font12, font16;
     public static Skin skin;
@@ -53,11 +54,26 @@ public class SandBox extends Game {
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("bensound-epic.mp3"));
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.6f);
-        backgroundMusic.play();
+
+        if (Options.enableBackgroundMusic)
+            backgroundMusic.play();
+
         batch = new SpriteBatch();
         goToScreen(ScreenName.MAIN);
     }
 
+    public void toggleEnableBackgroundMusic() {
+        Options.enableBackgroundMusic = !Options.enableBackgroundMusic;
+        if (Options.enableBackgroundMusic && !backgroundMusic.isPlaying())
+            backgroundMusic.play();
+        else if (!Options.enableBackgroundMusic && backgroundMusic.isPlaying())
+            backgroundMusic.stop();
+
+    }
+
+    public void toggleEnableSoundEffects() {
+        Options.enableSoundEffects = !Options.enableSoundEffects;
+    }
 
     @Override
     public void dispose() {
@@ -85,6 +101,7 @@ public class SandBox extends Game {
                 activeScreen = new AboutScreen(this);
                 break;
             case OPTIONS:
+                activeScreen = new OptionsScreen(this);
                 break;
             default:
                 break;

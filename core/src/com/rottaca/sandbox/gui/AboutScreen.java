@@ -17,7 +17,7 @@ import com.rottaca.sandbox.ctrl.SandBox;
  * Created by Andreas on 10.09.2016.
  */
 public class AboutScreen extends ScreenAdapter {
-    private Table table, table2;
+    private Table table;
     private Label label;
     private TextButton buttonBack;
     private SandBox sandBox;
@@ -44,19 +44,14 @@ public class AboutScreen extends ScreenAdapter {
         stage.addActor(table);
 
         label = new Label("Development\nAndreas Rottach\nBackground Music\nhttp://www.bensound.com\nSound Effects\nwww.soundbible.com", SandBox.skin, "defaultBlack");
-
-        // Define layout
-        table.add(label).expand().center();
-
-        table2 = new Table();
-        table2.setFillParent(true);
-        table2.setDebug(true);
-        stage.addActor(table2);
-
         buttonBack = new TextButton("Back", SandBox.skin, "default");
 
         // Define layout
-        table2.add(buttonBack).expand().left().bottom();
+        table.add(label);
+        table.row();
+
+        // Define layout
+        table.add(buttonBack).width(100).pad(10);
 
         buttonBack.addListener(new ClickListener() {
             @Override
