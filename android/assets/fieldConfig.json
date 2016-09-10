@@ -1,0 +1,68 @@
+{
+  Fields: [
+    {
+      MapId: 90,
+      Name: "Dirt",
+      Hardness: 2,
+      Density: 1,
+      IsFluid: false,
+      Color: "A07112"
+    },
+    {
+      MapId: 0,
+      Name: "Rock",
+      Hardness: 20,
+      Density: 1,
+      IsFluid: false,
+      Color: "A6A6A6"
+    },
+    {
+      MapId: 120,
+      Name: "Grass",
+      Hardness: 1,
+      Density: 1,
+      IsFluid: false,
+      Color: "309F0F"
+    },
+    {
+      MapId: 160,
+      Name: "Water",
+      Hardness: 1,
+      Density: 1,
+      IsFluid: true,
+      Color: "65DCFF"
+    },
+    {
+      MapId: 200,
+      Name: "Oil",
+      Hardness: 1,
+      Density: 0.9,
+      IsFluid: true,
+      Color: "E1DC3F"
+    },
+    {
+      MapId: 220,
+      Name: "Lava",
+      Hardness: 5,
+      Density: 10,
+      IsFluid: true,
+      Color: "E1DC3F"
+    },
+    {
+      MapId: 180,
+      Name: "Endstone",
+      Hardness: 10000000,
+      Density: 1,
+      IsFluid: false,
+      Color: "000000"
+    },
+    {
+      MapId: 155,
+      Name: "Wood",
+      Hardness: 6,
+      Density: 1,
+      IsFluid: false,
+      Color: "DDBA75"
+    }
+  ]
+}
