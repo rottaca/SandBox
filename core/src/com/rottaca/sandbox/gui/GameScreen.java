@@ -7,7 +7,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -53,10 +52,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private final int VIEWPORT_WIDTH = 840;
     private final int VIEWPORT_HEIGHT = 640;
 
-    private Texture bulletTexture;
-    private Texture tankBodyTexture;
-    private Texture tankGunTexture;
 
+    private GameFieldSpriteBatch gameFieldSpriteBatch;
 
     public GameScreen(SandBox sandBox) {
         this.sandBox = sandBox;
@@ -105,14 +102,11 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         Gdx.graphics.setContinuousRendering(false);
         Gdx.graphics.requestRendering();
 
-
+        gameFieldSpriteBatch = new GameFieldSpriteBatch();
 
         // Start game
         gameController = new GameController(this);
         loadingLevel();
-        bulletTexture = new Texture("bullet.png");
-        tankBodyTexture = new Texture("tankBody.png");
-        tankGunTexture = new Texture("tankGun.png");
 
 
         gameController.startLevel(1);
@@ -125,48 +119,24 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         SpriteBatch batch = sandBox.getBatch();
-        batch.disableBlending();
 
         if (gameController != null && gameController.isStarted()) {
 
             // TODO update camera only if necessary
             gameFieldCamera.updateCamera();
-            batch.setProjectionMatrix(gameFieldCamera.combined);
 
-
-            batch.begin();
-            batch.disableBlending();
+            gameFieldSpriteBatch.setProjectionMatrix(gameFieldCamera.combined);
+            // TODO Synchronize data if necessary ?!
             Chunk[][] chunks = gameController.getChunks();
-            // Draw all chunks
-            for (int y = 0; y < chunks.length; y++) {
-                for (int x = 0; x < chunks[1].length; x++) {
-                    Chunk c = chunks[y][x];
-                    batch.draw(c.getUpdatedChunk(), c.getPosX(), c.getPosY());
-                }
-            }
-
-            batch.enableBlending();
             ArrayList<Bullet> bullets = gameController.getBullets();
-            synchronized (bullets) {
-                for (int i = 0; i < bullets.size(); i++) {
-                    Bullet b = bullets.get(i);
-                    batch.draw(bulletTexture, b.getX() - bulletTexture.getWidth() / 2, b.getY() - bulletTexture.getHeight() / 2);
-                }
-            }
-
-            // Draw tanks
             MapConfig mc = gameController.getLevel().mapConfig;
-            // TODO animate gun !
-            //batch.draw(tankGunTexture,mc.leftPlayerPos.x+tankBodyTexture.getWidth()/2,mc.leftPlayerPos.y-tankGunTexture.getHeight()/2+tankBodyTexture.getHeight()/2);
-            //batch.draw(tankBodyTexture,mc.leftPlayerPos.x-tankBodyTexture.getWidth()/2,mc.leftPlayerPos.y-tankBodyTexture.getHeight()/2);
-            batch.draw(tankGunTexture, mc.leftPlayerPos.x, mc.leftPlayerPos.y - tankGunTexture.getHeight() / 2 + 2);
-            batch.draw(tankBodyTexture, mc.leftPlayerPos.x - tankBodyTexture.getWidth() / 2, mc.leftPlayerPos.y - tankBodyTexture.getHeight() / 2);
 
-            batch.end();
+            gameFieldSpriteBatch.drawGame(chunks, bullets, mc);
         }
 
         // Draw Overlay at the end
         batch.setProjectionMatrix(OverlayCamera.combined);
+        batch.disableBlending();
         batch.begin();
         stage.act(delta);
         stage.draw();

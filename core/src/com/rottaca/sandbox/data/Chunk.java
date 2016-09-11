@@ -21,8 +21,6 @@ public class Chunk implements Disposable {
     private boolean isTextureDirty;
     // GPU Texture that contains the image
     private Texture texture;
-    // Allows a flickering effect if chunk has to be updated (debugging)
-    private boolean hasFlickered;
 
     // Store references from game grid
     private int[][] fieldData;
@@ -45,7 +43,6 @@ public class Chunk implements Disposable {
         this.fieldData = fieldData;
         this.isTextureDirty = true;
         this.isChunkDirty = true;
-        this.hasFlickered = false;
         texture = null;
     }
 
@@ -59,41 +56,33 @@ public class Chunk implements Disposable {
         if (!isTextureDirty)
             return texture;
 
-
         //Gdx.app.debug("MyTag","Updating: " + toString());
 
         // Otherwise we have to recalculate the chunk texture
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
 
-        hasFlickered = true;
-        if (isTextureDirty && !hasFlickered) {
-            hasFlickered = true;
-            pixmap.setColor(Color.BLACK);
-            pixmap.fill();
-        } else {
-            // Fill with sky color
-            pixmap.setColor(Color.WHITE);
-            pixmap.fill();
 
-            // TODO synchronize game field buffer
-            synchronized (fieldData) {
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int mapId = fieldData[posY + y][posX + x];
+        // Fill with sky color
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
 
-                        if (fieldCfg.containsKey(mapId)) {
-                            pixmap.setColor(fieldCfg.get(mapId).color);
-                            pixmap.drawPixel(x, height - (y + 1));
-                        }
+        // TODO synchronize game field buffer
+        synchronized (fieldData) {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int mapId = fieldData[posY + y][posX + x];
+
+                    if (fieldCfg.containsKey(mapId)) {
+                        pixmap.setColor(fieldCfg.get(mapId).color);
+                        pixmap.drawPixel(x, height - (y + 1));
                     }
                 }
             }
-            //pixmap.setColor(Color.BLACK);
-            //pixmap.drawRectangle(0, 0, width, height);
-//        pixmap.drawCircle(0,0,10);
-            isTextureDirty = false;
-            hasFlickered = false;
         }
+        //pixmap.setColor(Color.BLACK);
+        //pixmap.drawRectangle(0, 0, width, height);
+//        pixmap.drawCircle(0,0,10);
+        isTextureDirty = false;
 
         if (texture != null)
             texture.dispose();
