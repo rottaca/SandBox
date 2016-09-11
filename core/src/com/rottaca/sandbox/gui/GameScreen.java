@@ -23,6 +23,7 @@ import com.rottaca.sandbox.ctrl.GameFieldCamera;
 import com.rottaca.sandbox.ctrl.SandBox;
 import com.rottaca.sandbox.data.Bullet;
 import com.rottaca.sandbox.data.Chunk;
+import com.rottaca.sandbox.data.MapConfig;
 
 import java.util.ArrayList;
 
@@ -53,6 +54,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private final int VIEWPORT_HEIGHT = 640;
 
     private Texture bulletTexture;
+    private Texture tankBodyTexture;
+    private Texture tankGunTexture;
 
 
     public GameScreen(SandBox sandBox) {
@@ -103,11 +106,15 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         Gdx.graphics.requestRendering();
 
 
-        bulletTexture = new Texture("bullet.png");
 
         // Start game
         gameController = new GameController(this);
         loadingLevel();
+        bulletTexture = new Texture("bullet.png");
+        tankBodyTexture = new Texture("tankBody.png");
+        tankGunTexture = new Texture("tankGun.png");
+
+
         gameController.startLevel(1);
     }
 
@@ -128,6 +135,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
 
             batch.begin();
+            batch.disableBlending();
             Chunk[][] chunks = gameController.getChunks();
             // Draw all chunks
             for (int y = 0; y < chunks.length; y++) {
@@ -136,6 +144,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
                     batch.draw(c.getUpdatedChunk(), c.getPosX(), c.getPosY());
                 }
             }
+
+            batch.enableBlending();
             ArrayList<Bullet> bullets = gameController.getBullets();
             synchronized (bullets) {
                 for (int i = 0; i < bullets.size(); i++) {
@@ -143,6 +153,14 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
                     batch.draw(bulletTexture, b.getX() - bulletTexture.getWidth() / 2, b.getY() - bulletTexture.getHeight() / 2);
                 }
             }
+
+            // Draw tanks
+            MapConfig mc = gameController.getLevel().mapConfig;
+            // TODO animate gun !
+            //batch.draw(tankGunTexture,mc.leftPlayerPos.x+tankBodyTexture.getWidth()/2,mc.leftPlayerPos.y-tankGunTexture.getHeight()/2+tankBodyTexture.getHeight()/2);
+            //batch.draw(tankBodyTexture,mc.leftPlayerPos.x-tankBodyTexture.getWidth()/2,mc.leftPlayerPos.y-tankBodyTexture.getHeight()/2);
+            batch.draw(tankGunTexture, mc.leftPlayerPos.x, mc.leftPlayerPos.y - tankGunTexture.getHeight() / 2 + 2);
+            batch.draw(tankBodyTexture, mc.leftPlayerPos.x - tankBodyTexture.getWidth() / 2, mc.leftPlayerPos.y - tankBodyTexture.getHeight() / 2);
 
             batch.end();
         }

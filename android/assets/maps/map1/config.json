@@ -1,5 +1,9 @@
 {
   MapConfig: {
-    Name: "Map 1"
+    Name: "Map 1",
+    LeftPlayerPosX: 17,
+    LeftPlayerPosY: 85,
+    RightPlayerPosX: 333,
+    RightPlayerPosY: 135
   }
 }

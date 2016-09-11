@@ -18,8 +18,12 @@ import java.util.HashMap;
  */
 public class ConfigLoader {
 
-    public static final String MAP_CONFIG_TAG = "MapConfig";
-    public static final String MAP_NAME_TAG = "Name";
+    public static final String MAP_TAG_CONFIG = "MapConfig";
+    public static final String MAP_TAG_NAME = "Name";
+    public static final String MAP_TAG_LEFT_PLAYER_POS_X = "LeftPlayerPosX";
+    public static final String MAP_TAG_LEFT_PLAYER_POS_Y = "LeftPlayerPosY";
+    public static final String MAP_TAG_RIGHT_PLAYER_POS_X = "RightPlayerPosX";
+    public static final String MAP_TAG_RIGHT_PLAYER_POS_Y = "RightPlayerPosY";
 
     public static final String FIELDS_TAG = "Fields";
     public static final String FIELD_TAG_NAME = "Name";
@@ -36,8 +40,12 @@ public class ConfigLoader {
         JsonValue root = new JsonReader().parse(mapConfigTxt);
         MapConfig mapConfig = new MapConfig();
 
-        JsonValue json = root.get(MAP_CONFIG_TAG);
-        mapConfig.name = json.getString(MAP_NAME_TAG);
+        JsonValue json = root.get(MAP_TAG_CONFIG);
+        mapConfig.name = json.getString(MAP_TAG_NAME);
+        mapConfig.leftPlayerPos.x = json.getInt(MAP_TAG_LEFT_PLAYER_POS_X);
+        mapConfig.leftPlayerPos.y = json.getInt(MAP_TAG_LEFT_PLAYER_POS_Y);
+        mapConfig.rightPlayerPos.x = json.getInt(MAP_TAG_RIGHT_PLAYER_POS_X);
+        mapConfig.rightPlayerPos.y = json.getInt(MAP_TAG_RIGHT_PLAYER_POS_Y);
 
         return mapConfig;
     }
