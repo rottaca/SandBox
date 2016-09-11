@@ -108,6 +108,10 @@ public class GameController implements Runnable {
         }
     }
 
+    public Level getLevel() {
+        return level;
+    }
+
     private boolean updateBullets() {
         if (bullets.size() == 0)
             return false;
@@ -154,7 +158,7 @@ public class GameController implements Runnable {
             //level.gameGrid.getChunkManager().invaidateCoordinate(y, x);
             //level.gameGrid.executeExplosion(y,x,10);
             synchronized (bullets) {
-                bullets.add(new Bullet(y, x, 10, (float) (-0.7f + Math.random() * 1.4f), (float) (Math.random() * 0.7f)));
+                bullets.add(new Bullet(y, x, 200, (float) (-0.7f + Math.random() * 1.4f), (float) (Math.random() * 0.7f)));
                 Gdx.app.log("MyTag", "Bullet Count: " + bullets.size());
             }
         }

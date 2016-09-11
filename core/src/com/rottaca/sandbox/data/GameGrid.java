@@ -130,13 +130,19 @@ public class GameGrid {
 
         for (int y_ = yMin; y_ < yMax; y_++) {
             for (int x_ = xMin; x_ < xMax; x_++) {
+
+                if (fieldData[y_][x_] == -1)
+                    continue;
+
                 int dx = Math.abs(x - x_);
                 int dy = Math.abs(y - y_);
-                if (dx * dx + dy * dy <= radius2) {
+                int dist2 = dx * dx + dy * dy;
+
+                float weightedDamage = damage / dist2;
+
+                if (dist2 <= radius2 && fieldCfg.get(fieldData[y_][x_]).hardness < weightedDamage) {
                     fieldData[y_][x_] = -1;
                     chunkManager.invaidateCoordinate(y_, x_);
-                    //for(int i = y_; i < height; i++)
-                    //    chunkManager.invaidateCoordinate(i,x_);
                 }
             }
         }
