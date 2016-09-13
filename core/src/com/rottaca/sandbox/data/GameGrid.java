@@ -15,8 +15,7 @@ public class GameGrid {
 
     private ChunkManager chunkManager;
 
-    private final int CHUNK_SIZE = 16;
-
+    public static final int CHUNK_SIZE = 32;
 
     public GameGrid(Pixmap map, HashMap<Integer, FieldConfig> fieldCfg) {
         this.width = map.getWidth();
@@ -39,7 +38,7 @@ public class GameGrid {
         chunkManager = new ChunkManager();
         Gdx.app.debug("MyTag", "Creating chunks...");
         chunkManager.constructChunks(fieldData, fieldCfg, CHUNK_SIZE);
-        Gdx.app.debug("MyTag", "Chunks created.");
+        Gdx.app.debug("MyTag", String.valueOf(chunkManager.getChunks().length * chunkManager.getChunks()[0].length) + " Chunks created.");
     }
 
     public Chunk[][] getChunks() {

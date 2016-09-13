@@ -32,8 +32,6 @@ public class ChunkManager {
 
         chunks = new Chunk[chunkCountY][chunkCountX];
 
-        Gdx.app.debug("MyTag", "Creating chunks...");
-
         for (int y = 0; y < chunkCountY; y++) {
             for (int x = 0; x < chunkCountX; x++) {
                 int chunkSizeX = maxChunkSize;
@@ -53,7 +51,7 @@ public class ChunkManager {
             }
         }
 
-        Gdx.app.debug("MyTag", "ChunkCount: " + chunkCountX + "x" + chunkCountY);
+        Gdx.app.debug("MyTag", "ChunkLayout: " + chunkCountX + "x" + chunkCountY);
     }
 
     public void invaidateCoordinate(int y, int x) {

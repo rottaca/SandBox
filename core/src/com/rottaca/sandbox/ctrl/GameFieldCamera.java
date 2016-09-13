@@ -50,6 +50,14 @@ public class GameFieldCamera extends OrthographicCamera {
         update();
     }
 
+    public Vector2 getCameraPos() {
+        return cameraPos;
+    }
+
+    public Vector2 getImageSize() {
+        return new Vector2(cameraWidth, cameraHeight);
+    }
+
     public synchronized float setCameraPosX(float x) {
         up2Date = false;
 

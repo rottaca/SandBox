@@ -9,7 +9,7 @@
       Color: "A07112"
     },
     {
-      MapId: 0,
+      MapId: 1,
       Name: "Rock",
       Hardness: 20,
       Density: 1,

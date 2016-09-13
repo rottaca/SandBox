@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.rottaca.sandbox.data.Options;
 import com.rottaca.sandbox.gui.AboutScreen;
 import com.rottaca.sandbox.gui.GameScreen;
 import com.rottaca.sandbox.gui.MainMenuScreen;
@@ -50,12 +49,11 @@ public class SandBox extends Game {
         skin.addRegions(new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
         skin.load(Gdx.files.internal("uiskin.json"));
 
-
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("bensound-epic.mp3"));
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.6f);
 
-        if (Options.enableBackgroundMusic)
+        if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED))
             backgroundMusic.play();
 
         batch = new SpriteBatch();
@@ -63,16 +61,20 @@ public class SandBox extends Game {
     }
 
     public void toggleEnableBackgroundMusic() {
-        Options.enableBackgroundMusic = !Options.enableBackgroundMusic;
-        if (Options.enableBackgroundMusic && !backgroundMusic.isPlaying())
+        boolean bgMusic = !ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED);
+        ConfigLoader.prefs.putBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED, bgMusic);
+        ConfigLoader.prefs.flush();
+        if (bgMusic && !backgroundMusic.isPlaying())
             backgroundMusic.play();
-        else if (!Options.enableBackgroundMusic && backgroundMusic.isPlaying())
+        else if (!bgMusic && backgroundMusic.isPlaying())
             backgroundMusic.stop();
 
     }
 
     public void toggleEnableSoundEffects() {
-        Options.enableSoundEffects = !Options.enableSoundEffects;
+        boolean fxSound = !ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED);
+        ConfigLoader.prefs.putBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED, fxSound);
+        ConfigLoader.prefs.flush();
     }
 
     @Override

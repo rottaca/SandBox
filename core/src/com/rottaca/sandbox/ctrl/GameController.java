@@ -6,7 +6,6 @@ import com.rottaca.sandbox.data.Bullet;
 import com.rottaca.sandbox.data.Chunk;
 import com.rottaca.sandbox.data.FieldConfig;
 import com.rottaca.sandbox.data.Level;
-import com.rottaca.sandbox.data.Options;
 import com.rottaca.sandbox.gui.GameScreen;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class GameController implements Runnable {
 
     Thread thread;
     boolean pause;
-    boolean started;
+    boolean isRunning;
     boolean levelLoaded;
     boolean updateRendering;
 
@@ -38,7 +37,7 @@ public class GameController implements Runnable {
         this.gameScreen = gameScreen;
         this.pause = false;
         this.levelNr = -1;
-        this.started = false;
+        this.isRunning = false;
         this.levelLoaded = false;
         this.updateRendering = false;
         this.bullets = new ArrayList<Bullet>();
@@ -65,12 +64,12 @@ public class GameController implements Runnable {
             }
         }
 
-        gameScreen.requestRendering();
         gameScreen.levelLoaded();
-        started = true;
+        isRunning = true;
         levelLoaded = true;
+        gameScreen.requestRendering();
 
-        while (!Thread.currentThread().isInterrupted()) {
+        while (isRunning) {
 
             if (pause) {
                 pause = false;
@@ -82,7 +81,6 @@ public class GameController implements Runnable {
                     Gdx.app.debug("MyTag", "Game resumed...");
 
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
 
@@ -103,7 +101,6 @@ public class GameController implements Runnable {
             try {
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -133,7 +130,7 @@ public class GameController implements Runnable {
                 else if (x < getGameFieldWidth() && y < getGameFieldHeight() && level.gameGrid.getField(y, x) >= 0) {
                     level.gameGrid.executeExplosion(y, x, b.getDamage());
                     removedBullets.add(b);
-                    if (Options.enableSoundEffects)
+                    if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
                         explosionSound.play();
                 }
             }
@@ -177,16 +174,18 @@ public class GameController implements Runnable {
     }
 
     public void stopLevel() {
+        isRunning = false;
+        levelLoaded = false;
         if (thread != null) {
+            synchronized (thread) {
+                thread.notify();
+            }
             thread.interrupt();
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
-        started = false;
-        levelLoaded = false;
     }
 
     public void pause() {
@@ -209,7 +208,7 @@ public class GameController implements Runnable {
         return level.gameGrid.getHeight();
     }
 
-    public boolean isStarted() {
-        return started;
+    public boolean isRunning() {
+        return isRunning;
     }
 }

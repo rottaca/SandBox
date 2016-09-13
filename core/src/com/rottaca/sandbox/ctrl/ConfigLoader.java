@@ -1,6 +1,7 @@
 package com.rottaca.sandbox.ctrl;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -32,6 +33,11 @@ public class ConfigLoader {
     public static final String FIELD_TAG_DENSITY = "Density";
     public static final String FIELD_TAG_ISFLUID = "IsFluid";
     public static final String FIELD_TAG_COLOR = "Color";
+
+    // Global setting for the game
+    public static final Preferences prefs = Gdx.app.getPreferences("Preferences");
+    public static final String PREF_SOUND_BG_ENABLED = "BackgroundMusicEnabled";
+    public static final String PREF_SOUND_FX_ENABLED = "FXSoundEnabled";
 
     public static MapConfig loadMapConfigFile(String fileName) {
         FileHandle file = Gdx.files.internal(fileName);
@@ -79,11 +85,11 @@ public class ConfigLoader {
     public static Level loadLevel(String folderName, HashMap<Integer, FieldConfig> fieldConfigHashMap) {
         Level level = new Level();
         String mapConfigName = folderName + "/config.json";
-        String mapFileName = folderName + "/Map.png";
-        Pixmap mapPixmap = new Pixmap(Gdx.files.internal(mapFileName));
+        String mapFileName = folderName + "/map.png";
         Gdx.app.debug("MyTag", "Loading map config...");
         level.mapConfig = loadMapConfigFile(mapConfigName);
         Gdx.app.debug("MyTag", "Loading map image...");
+        Pixmap mapPixmap = new Pixmap(Gdx.files.internal(mapFileName));
         level.gameGrid = new GameGrid(mapPixmap, fieldConfigHashMap);
 
         return level;

@@ -10,8 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.rottaca.sandbox.ctrl.ConfigLoader;
 import com.rottaca.sandbox.ctrl.SandBox;
-import com.rottaca.sandbox.data.Options;
 
 /**
  * Created by Andreas on 10.09.2016.
@@ -49,12 +49,12 @@ public class OptionsScreen extends ScreenAdapter {
         buttonToggleSoundEffects = new TextButton("Effects: ON", SandBox.skin, "default");
 
         // Update text according to options
-        if (Options.enableBackgroundMusic)
+        if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED))
             buttonToggleBackgroundMusic.setText("Music: ON");
         else
             buttonToggleBackgroundMusic.setText("Music: OFF");
 
-        if (Options.enableSoundEffects)
+        if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
             buttonToggleSoundEffects.setText("Effects: ON");
         else
             buttonToggleSoundEffects.setText("Effects: OFF");
@@ -78,7 +78,7 @@ public class OptionsScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 sandBox.toggleEnableBackgroundMusic();
-                if (Options.enableBackgroundMusic)
+                if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED))
                     buttonToggleBackgroundMusic.setText("Music: ON");
                 else
                     buttonToggleBackgroundMusic.setText("Music: OFF");
@@ -89,7 +89,7 @@ public class OptionsScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 sandBox.toggleEnableSoundEffects();
-                if (Options.enableSoundEffects)
+                if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
                     buttonToggleSoundEffects.setText("Effects: ON");
                 else
                     buttonToggleSoundEffects.setText("Effects: OFF");

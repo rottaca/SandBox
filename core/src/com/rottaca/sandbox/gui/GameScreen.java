@@ -33,6 +33,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     private GameController gameController;
     private SandBox sandBox;
+    private SpriteBatch batch;
     private Stage stage;
 
     private OrthographicCamera OverlayCamera;
@@ -41,6 +42,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     private Vector2 touchPosDrag = new Vector2();
     private Vector2 cameraPos = new Vector2();
+    private boolean dragging = false;
 
     // Gui Elements
     private TextButton buttonBack;
@@ -63,6 +65,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     public void create() {
         OverlayCamera = new OrthographicCamera();
         gameFieldCamera = null;
+        batch = sandBox.getBatch();
 
         // pick a viewport that suits your thing, ExtendViewport is a good start
         viewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, OverlayCamera);
@@ -98,7 +101,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
             }
         });
 
-        // Disable contiuous rendering
+        // Disable continuous rendering
         Gdx.graphics.setContinuousRendering(false);
         Gdx.graphics.requestRendering();
 
@@ -118,20 +121,15 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         gl.glClearColor(1, 1, 1, 1);
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        SpriteBatch batch = sandBox.getBatch();
 
-        if (gameController != null && gameController.isStarted()) {
+        if (gameController != null && gameController.isRunning()) {
 
-            // TODO update camera only if necessary
-            gameFieldCamera.updateCamera();
-
-            gameFieldSpriteBatch.setProjectionMatrix(gameFieldCamera.combined);
             // TODO Synchronize data if necessary ?!
             Chunk[][] chunks = gameController.getChunks();
             ArrayList<Bullet> bullets = gameController.getBullets();
             MapConfig mc = gameController.getLevel().mapConfig;
 
-            gameFieldSpriteBatch.drawGame(chunks, bullets, mc);
+            gameFieldSpriteBatch.drawGame(gameFieldCamera, chunks, bullets, mc);
         }
 
         // Draw Overlay at the end
@@ -169,6 +167,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     @Override
     public void dispose() {
+        if (gameController != null && gameController.isRunning())
+            gameController.stopLevel();
+
         stage.dispose();
     }
 
@@ -190,15 +191,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (button != Input.Buttons.LEFT || pointer > 0) return false;
-        Vector3 tpGameFieldCoord = new Vector3();
-        if (gameFieldCamera != null) {
-            gameFieldCamera.unproject(tpGameFieldCoord.set(screenX, screenY, 0));
-            Gdx.app.debug("MyTag", "Touch at GameField: " + tpGameFieldCoord.toString());
+        dragging = false;
 
-            if (gameController.isStarted())
-                gameController.clickedOnGameField((int) tpGameFieldCoord.y, (int) tpGameFieldCoord.x);
-
-        }
         touchPosDrag.x = screenX;
         touchPosDrag.y = screenY;
         return true;
@@ -206,7 +200,19 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (dragging) {
 
+        } else {
+            if (gameFieldCamera != null) {
+                Vector3 tpGameFieldCoord = new Vector3();
+                gameFieldCamera.unproject(tpGameFieldCoord.set(screenX, screenY, 0));
+                Gdx.app.debug("MyTag", "Touch at GameField: " + tpGameFieldCoord.toString());
+
+                if (gameController.isRunning())
+                    gameController.clickedOnGameField((int) tpGameFieldCoord.y, (int) tpGameFieldCoord.x);
+
+            }
+        }
         return false;
     }
 
@@ -217,6 +223,10 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         Vector2 delta = new Vector2();
         delta.x = touchPosDrag.x - screenX;
         delta.y = touchPosDrag.y - screenY;
+
+        // Noticeable movement ?
+        if (delta.x * delta.x + delta.y * delta.y > 2)
+            dragging = true;
 
         touchPosDrag.x = screenX;
         touchPosDrag.y = screenY;
