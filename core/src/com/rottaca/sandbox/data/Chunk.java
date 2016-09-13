@@ -79,7 +79,7 @@ public class Chunk implements Disposable {
                 }
             }
         }
-        //pixmap.setColor(Color.BLACK);
+        // pixmap.setColor(Color.BLACK);
         //pixmap.drawRectangle(0, 0, width, height);
 //        pixmap.drawCircle(0,0,10);
         isTextureDirty = false;
