@@ -51,8 +51,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private Table table;
     private Table tableLoadingOverlay;
 
-    private final int VIEWPORT_WIDTH = 840;
-    private final int VIEWPORT_HEIGHT = 640;
+    private final int VIEWPORT_WIDTH = 300;
+    private final int VIEWPORT_HEIGHT = 200;
 
 
     private GameFieldSpriteBatch gameFieldSpriteBatch;
@@ -63,11 +63,11 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     }
 
     public void create() {
-        OverlayCamera = new OrthographicCamera();
         gameFieldCamera = null;
         batch = sandBox.getBatch();
 
         // pick a viewport that suits your thing, ExtendViewport is a good start
+        OverlayCamera = new OrthographicCamera();
         viewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, OverlayCamera);
         stage = new Stage(viewport);
 
@@ -78,16 +78,16 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
         table = new Table();
         table.setFillParent(true);
-        table.setDebug(true);
+        // table.setDebug(true);
         stage.addActor(table);
 
         tableLoadingOverlay = new Table();
         tableLoadingOverlay.setFillParent(true);
-        tableLoadingOverlay.setDebug(true);
+        //tableLoadingOverlay.setDebug(true);
         stage.addActor(tableLoadingOverlay);
 
         buttonBack = new TextButton("Back", SandBox.skin, "default");
-        loadingLabel = new Label("Loading Level...", SandBox.skin, "default");
+        loadingLabel = new Label("Loading Level...", SandBox.skin, "defaultBlack");
 
         // Define layout
         table.add(buttonBack).pad(10).expand().bottom().left();
@@ -97,6 +97,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if (gameController != null && gameController.isRunning())
+                    gameController.stopLevel();
                 sandBox.goToScreen(SandBox.ScreenName.MAIN);
             }
         });
@@ -105,7 +107,10 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         Gdx.graphics.setContinuousRendering(false);
         Gdx.graphics.requestRendering();
 
-        gameFieldSpriteBatch = new GameFieldSpriteBatch();
+        gameFieldSpriteBatch = new GameFieldSpriteBatch(
+                sandBox.getTexture(SandBox.TEXTURE_BULLET),
+                sandBox.getTexture(SandBox.TEXTURE_TANKBODY),
+                sandBox.getTexture(SandBox.TEXTURE_TANKGUN));
 
         // Start game
         gameController = new GameController(this);

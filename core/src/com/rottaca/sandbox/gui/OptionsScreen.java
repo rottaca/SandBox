@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -26,6 +27,7 @@ public class OptionsScreen extends ScreenAdapter {
     private SandBox sandBox;
 
     private Stage stage;
+    private TextureRegion menuBackgroundTexture;
 
     public OptionsScreen(SandBox sandBox) {
         this.sandBox = sandBox;
@@ -40,7 +42,7 @@ public class OptionsScreen extends ScreenAdapter {
 
         table = new Table();
         table.setFillParent(true);
-        table.setDebug(true);
+        //table.setDebug(true);
         stage.addActor(table);
 
         // Define layout
@@ -95,6 +97,8 @@ public class OptionsScreen extends ScreenAdapter {
                     buttonToggleSoundEffects.setText("Effects: OFF");
             }
         });
+
+        menuBackgroundTexture = sandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND);
     }
 
     @Override
@@ -105,6 +109,13 @@ public class OptionsScreen extends ScreenAdapter {
 
         SpriteBatch batch = sandBox.getBatch();
         batch.disableBlending();
+
+        batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
+        batch.begin();
+        batch.draw(menuBackgroundTexture, 0, 0,
+                stage.getWidth(), stage.getHeight());
+        batch.end();
+
         batch.begin();
         stage.act(delta);
         stage.draw();

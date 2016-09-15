@@ -5,6 +5,8 @@ sourceSets.main.java.srcDirs = ["src/"]
 
 project.ext.mainClassName = "com.rottaca.sandbox.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../android/assets");
+project.ext.texturePacker = ["../android/assets/textures", "../android/assets/textures", "sprites"];
+
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName

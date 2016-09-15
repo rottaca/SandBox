@@ -1,8 +1,8 @@
 package com.rottaca.sandbox.gui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.rottaca.sandbox.ctrl.GameFieldCamera;
 import com.rottaca.sandbox.data.Bullet;
@@ -19,25 +19,22 @@ public class GameFieldSpriteBatch extends SpriteBatch {
 
     private ShaderProgram shaderProgram;
 
-    private Texture bulletTexture;
-    // TODO Combine textures into a single texture by using texture regions
-    private Texture tankBodyTexture;
-    private Texture tankGunTexture;
+    private TextureRegion bulletTexture;
+    private TextureRegion tankBodyTexture;
+    private TextureRegion tankGunTexture;
 
-    GameFieldSpriteBatch() {
+    GameFieldSpriteBatch(TextureRegion bullet, TextureRegion tankBody, TextureRegion tankGun) {
         super();
+        bulletTexture = bullet;
+        tankBodyTexture = tankBody;
+        tankGunTexture = tankGun;
+
         shaderProgram = new ShaderProgram(Gdx.files.internal("shaders/gameFieldVertexShader.vert"), Gdx.files.internal("shaders/gameFieldFragmentShader.frag"));
         if (!shaderProgram.isCompiled()) {
             Gdx.app.error("MyTag", "Can't compile shader:\n" + shaderProgram.getLog());
             return;
         }
         setShader(shaderProgram);
-
-
-        bulletTexture = new Texture("bullet.png");
-        tankBodyTexture = new Texture("tankBody.png");
-        tankGunTexture = new Texture("tankGun.png");
-
         enableBlending();
     }
 
@@ -73,11 +70,11 @@ public class GameFieldSpriteBatch extends SpriteBatch {
         setShader(null);
         for (int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
-            draw(bulletTexture, b.getX() - bulletTexture.getWidth() / 2, b.getY() - bulletTexture.getHeight() / 2);
+            draw(bulletTexture, b.getX() - bulletTexture.getRegionWidth() / 2, b.getY() - bulletTexture.getRegionHeight() / 2);
         }
 
-        draw(tankGunTexture, mc.leftPlayerPos.x, mc.leftPlayerPos.y - tankGunTexture.getHeight() / 2 + 2);
-        draw(tankBodyTexture, mc.leftPlayerPos.x - tankBodyTexture.getWidth() / 2, mc.leftPlayerPos.y - tankBodyTexture.getHeight() / 2);
+        draw(tankGunTexture, mc.leftPlayerPos.x, mc.leftPlayerPos.y - tankGunTexture.getRegionHeight() / 2 + 2);
+        draw(tankBodyTexture, mc.leftPlayerPos.x - tankBodyTexture.getRegionWidth() / 2, mc.leftPlayerPos.y - tankBodyTexture.getRegionHeight() / 2);
 
         end();
     }

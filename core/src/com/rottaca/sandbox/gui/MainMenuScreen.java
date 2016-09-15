@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -16,7 +17,7 @@ import com.rottaca.sandbox.ctrl.SandBox;
  * Created by Andreas on 03.09.2016.
  */
 public class MainMenuScreen extends ScreenAdapter {
-    private com.rottaca.sandbox.ctrl.SandBox sandBox;
+    private SandBox sandBox;
     private Stage stage;
 
     // Gui Elements
@@ -24,26 +25,24 @@ public class MainMenuScreen extends ScreenAdapter {
     private TextButton buttonOptions;
     private TextButton buttonAbout;
 
+    private TextureRegion menuBackgroundTexture;
+
     // Layout
     private Table table;
 
-    public MainMenuScreen(com.rottaca.sandbox.ctrl.SandBox sandBox) {
+    public MainMenuScreen(SandBox sandBox) {
         this.sandBox = sandBox;
         create();
     }
 
     public void create() {
-
         stage = new Stage(new ExtendViewport(300, 200));
-
-        float width = stage.getWidth();
-        float height = stage.getHeight();
 
         Gdx.input.setInputProcessor(stage);
 
         table = new Table();
         table.setFillParent(true);
-        table.setDebug(true);
+        //table.setDebug(true);
         stage.addActor(table);
 
         buttonStart = new TextButton("Start", SandBox.skin, "default");
@@ -78,6 +77,8 @@ public class MainMenuScreen extends ScreenAdapter {
             }
         });
 
+        menuBackgroundTexture = sandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND);
+
     }
 
     @Override
@@ -88,6 +89,12 @@ public class MainMenuScreen extends ScreenAdapter {
 
         SpriteBatch batch = sandBox.getBatch();
         batch.disableBlending();
+        batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
+        batch.begin();
+        batch.draw(menuBackgroundTexture, 0, 0,
+                stage.getWidth(), stage.getHeight());
+        batch.end();
+
         batch.begin();
         stage.act(delta);
         stage.draw();

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -23,6 +24,7 @@ public class AboutScreen extends ScreenAdapter {
     private SandBox sandBox;
 
     private Stage stage;
+    private TextureRegion menuBackgroundTexture;
 
     public AboutScreen(SandBox sandBox) {
         this.sandBox = sandBox;
@@ -40,7 +42,7 @@ public class AboutScreen extends ScreenAdapter {
 
         table = new Table();
         table.setFillParent(true);
-        table.setDebug(true);
+        //table.setDebug(true);
         stage.addActor(table);
 
         label = new Label("Development\nAndreas Rottach\nBackground Music\nhttp://www.bensound.com\nSound Effects\nwww.soundbible.com", SandBox.skin, "defaultBlack");
@@ -59,6 +61,7 @@ public class AboutScreen extends ScreenAdapter {
                 sandBox.goToScreen(SandBox.ScreenName.MAIN);
             }
         });
+        menuBackgroundTexture = sandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND);
     }
 
     @Override
@@ -69,6 +72,13 @@ public class AboutScreen extends ScreenAdapter {
 
         SpriteBatch batch = sandBox.getBatch();
         batch.disableBlending();
+
+        batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
+        batch.begin();
+        batch.draw(menuBackgroundTexture, 0, 0,
+                stage.getWidth(), stage.getHeight());
+        batch.end();
+
         batch.begin();
         stage.act(delta);
         stage.draw();

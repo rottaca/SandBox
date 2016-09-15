@@ -5,15 +5,16 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.rottaca.sandbox.gui.AboutScreen;
 import com.rottaca.sandbox.gui.GameScreen;
 import com.rottaca.sandbox.gui.MainMenuScreen;
 import com.rottaca.sandbox.gui.OptionsScreen;
+
+import java.util.HashMap;
 
 public class SandBox extends Game {
     SpriteBatch batch;
@@ -23,25 +24,27 @@ public class SandBox extends Game {
         MAIN, GAME, OPTIONS, ABOUT
     }
 
-    public Screen activeScreen = null;
+    private Screen activeScreen = null;
 
     private Music backgroundMusic;
 
-    public static BitmapFont font12, font16;
     public static Skin skin;
+
+    private TextureAtlas textureAtlas;
+    private HashMap<String, TextureRegion> textureRegionHashMap = new HashMap<String, TextureRegion>();
+    public static final String TEXTURE_TANKBODY = "TankBody";
+    public static final String TEXTURE_TANKGUN = "TankGun";
+    public static final String TEXTURE_BULLET = "Bullet";
+    public static final String TEXTURE_BULLETLINE = "BulletLine";
+    public static final String TEXTURE_HORIZON = "Horizon";
+    public static final String TEXTURE_MENUBACKGROUND = "MenuBackground";
 
     @Override
     public void create() {
-
         Gdx.app.setLogLevel(Application.LOG_INFO);
-
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("From Cartoon Blocks.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 12;
-        font12 = generator.generateFont(parameter); // font size 12 pixels
-        parameter.size = 16;
-        font16 = generator.generateFont(parameter); // font size 16 pixels
-        generator.dispose(); // don't forget to dispose to avoid memory leaks!
+        initializePreferences();
+        // TODO Show loading screen
+        loadTextures();
 
         //skin = new Skin(Gdx.files.internal("uiskin.json"));
         skin = new Skin();
@@ -81,6 +84,7 @@ public class SandBox extends Game {
     public void dispose() {
         backgroundMusic.dispose();
         batch.dispose();
+        textureAtlas.dispose();
     }
 
     public SpriteBatch getBatch() {
@@ -109,5 +113,29 @@ public class SandBox extends Game {
                 break;
         }
         setScreen(activeScreen);
+    }
+
+    private void initializePreferences() {
+        // Set default if not done
+        ConfigLoader.prefs.putBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED, ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED, true));
+        ConfigLoader.prefs.putBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED, ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED, true));
+
+
+        ConfigLoader.prefs.flush();
+    }
+
+    private void loadTextures() {
+        textureAtlas = new TextureAtlas(Gdx.files.internal("textures/pack.atlas"));
+
+        textureRegionHashMap.put(TEXTURE_TANKBODY, textureAtlas.findRegion(TEXTURE_TANKBODY));
+        textureRegionHashMap.put(TEXTURE_TANKGUN, textureAtlas.findRegion(TEXTURE_TANKGUN));
+        textureRegionHashMap.put(TEXTURE_BULLET, textureAtlas.findRegion(TEXTURE_BULLET));
+        textureRegionHashMap.put(TEXTURE_BULLETLINE, textureAtlas.findRegion(TEXTURE_BULLETLINE));
+        textureRegionHashMap.put(TEXTURE_HORIZON, textureAtlas.findRegion(TEXTURE_HORIZON));
+        textureRegionHashMap.put(TEXTURE_MENUBACKGROUND, textureAtlas.findRegion(TEXTURE_MENUBACKGROUND));
+    }
+
+    public TextureRegion getTexture(String key) {
+        return textureRegionHashMap.get(key);
     }
 }
