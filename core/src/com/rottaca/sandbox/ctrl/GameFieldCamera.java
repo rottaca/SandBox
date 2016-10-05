@@ -16,7 +16,7 @@ public class GameFieldCamera extends OrthographicCamera {
     private float aspectRatio;
 
     private Vector2 cameraPos;
-    private float scaleFactor;
+    private float zoomFactor;
 
     private boolean up2Date;
 
@@ -33,7 +33,7 @@ public class GameFieldCamera extends OrthographicCamera {
         this.gameFieldWidth = gameFieldWidth;
         this.aspectRatio = viewportRatioWPerH;
         this.cameraPos = new Vector2(0, 0);
-        this.scaleFactor = 1f;
+        this.zoomFactor = 1f;
         this.up2Date = false;
     }
 
@@ -42,8 +42,8 @@ public class GameFieldCamera extends OrthographicCamera {
             return;
 
         up2Date = true;
-        cameraHeight = gameFieldHeight / scaleFactor;
-        cameraWidth = gameFieldHeight * aspectRatio / scaleFactor;
+        cameraHeight = gameFieldHeight / zoomFactor;
+        cameraWidth = gameFieldHeight * aspectRatio / zoomFactor;
 
         setToOrtho(false, cameraWidth, cameraHeight);
         translate(cameraPos.x, cameraPos.y);
@@ -57,6 +57,11 @@ public class GameFieldCamera extends OrthographicCamera {
     public Vector2 getImageSize() {
         return new Vector2(cameraWidth, cameraHeight);
     }
+
+    public float getZoomFactor() {
+        return zoomFactor;
+    }
+
 
     public synchronized float setCameraPosX(float x) {
         up2Date = false;
@@ -82,17 +87,18 @@ public class GameFieldCamera extends OrthographicCamera {
         return y;
     }
 
-    public synchronized float setCameraScale(float scaleFactor) {
+    public synchronized float setCameraZoom(float ZoomFactor) {
         up2Date = false;
 
-        if (scaleFactor < 1)
-            scaleFactor = 1;
-        else if (scaleFactor > 2)
-            scaleFactor = 2;
+        // TODO Allow zooming out
+        if (ZoomFactor < 1)
+            ZoomFactor = 1;
+        else if (ZoomFactor > 2)
+            ZoomFactor = 2;
 
-        this.scaleFactor = scaleFactor;
+        this.zoomFactor = ZoomFactor;
 
-        return scaleFactor;
+        return ZoomFactor;
     }
 
 }

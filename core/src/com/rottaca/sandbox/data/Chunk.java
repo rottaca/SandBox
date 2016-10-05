@@ -3,6 +3,9 @@ package com.rottaca.sandbox.data;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 
 import java.util.HashMap;
@@ -10,21 +13,20 @@ import java.util.HashMap;
 /**
  * Created by Andreas on 07.09.2016.
  */
-public class Chunk implements Disposable {
-    // Size of the chunk
-    private int width, height;
-    // Position of the chunk in the game grid
-    private int posX, posY;
+public class Chunk extends Actor implements Disposable {
     // Chunk data has to be updated ?
     private boolean isChunkDirty;
     // Chunk texture has to be updated ?
     private boolean isTextureDirty;
     // GPU Texture that contains the image
     private Texture texture;
+    private Pixmap pixmap;
 
     // Store references from game grid
     private int[][] fieldData;
     private HashMap<Integer, FieldConfig> fieldCfg;
+
+    private static Vector2 tmp = new Vector2(0, 0);
 
     /**
      * Constructor
@@ -35,15 +37,16 @@ public class Chunk implements Disposable {
      * @param posY
      */
     public Chunk(int width, int height, int posX, int posY, int[][] fieldData, HashMap<Integer, FieldConfig> fieldCfg) {
-        this.width = width;
-        this.height = height;
-        this.posX = posX;
-        this.posY = posY;
+        tmp.set(posX, posY);
+        tmp = stageToLocalCoordinates(tmp);
+        setBounds(tmp.x, tmp.y, width, height);
+
         this.fieldCfg = fieldCfg;
         this.fieldData = fieldData;
         this.isTextureDirty = true;
         this.isChunkDirty = true;
         texture = null;
+        pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
     }
 
     /**
@@ -59,22 +62,23 @@ public class Chunk implements Disposable {
         //Gdx.app.debug("MyTag","Updating: " + toString());
 
         // Otherwise we have to recalculate the chunk texture
-        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-
 
         // Fill with sky color
-        pixmap.setColor(Color.WHITE);
+        pixmap.setColor(Color.argb8888(1, 1, 1, 0));
         pixmap.fill();
+
+        tmp.set(0, 0);
+        tmp = localToStageCoordinates(tmp);
 
         // TODO synchronize game field buffer
         synchronized (fieldData) {
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int mapId = fieldData[posY + y][posX + x];
+            for (int y = 0; y < getHeight(); y++) {
+                for (int x = 0; x < getWidth(); x++) {
+                    int mapId = fieldData[(int) (tmp.y + y)][(int) (tmp.x + x)];
 
                     if (fieldCfg.containsKey(mapId)) {
                         pixmap.setColor(fieldCfg.get(mapId).color);
-                        pixmap.drawPixel(x, height - (y + 1));
+                        pixmap.drawPixel(x, (int) (getHeight() - (y + 1)));
                     }
                 }
             }
@@ -88,14 +92,13 @@ public class Chunk implements Disposable {
             texture.dispose();
 
         texture = new Texture(pixmap);
-        pixmap.dispose();
 
         return texture;
     }
 
     @Override
     public String toString() {
-        return "Chunk (" + posX + "x" + posY + "), WxH: " + width + "x" + height + " is " + (isTextureDirty ? "" : "not ") + "dirty.";
+        return "Chunk (" + getX() + "x" + getY() + "), WxH: " + getWidth() + "x" + getHeight() + " is " + (isTextureDirty ? "" : "not ") + "dirty.";
     }
 
     public synchronized void setTextureDirty(boolean textureDirty) {
@@ -114,25 +117,23 @@ public class Chunk implements Disposable {
         return isChunkDirty;
     }
 
-    public int getPosX() {
-        return posX;
+    @Override
+    public void act(float delta) {
+        super.act(delta);
     }
 
-    public int getPosY() {
-        return posY;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        tmp.set(0, 0);
+        tmp = localToStageCoordinates(tmp);
+        batch.draw(getUpdatedChunk(), tmp.x, tmp.y);
     }
 
     @Override
     public void dispose() {
         if (texture != null)
             texture.dispose();
+        if (pixmap != null)
+            pixmap.dispose();
     }
 }

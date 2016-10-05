@@ -2,114 +2,138 @@ package com.rottaca.sandbox.ctrl;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.rottaca.sandbox.data.Bullet;
 import com.rottaca.sandbox.data.Chunk;
 import com.rottaca.sandbox.data.FieldConfig;
 import com.rottaca.sandbox.data.Level;
+import com.rottaca.sandbox.data.Tank;
 import com.rottaca.sandbox.gui.GameScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class GameController implements Runnable {
+public class GameController extends Stage {
 
     GameScreen gameScreen = null;
 
-    long lastFrameTime = 0;
-    final static int FPS = 30;
     final static float GRAVITATION = -0.01f;
 
-    Thread thread;
-    boolean pause;
     boolean isRunning;
     boolean levelLoaded;
+    boolean gameFinished;
     boolean updateRendering;
 
     Integer levelNr;
     Level level;
+    int activeTankId;
+    boolean playerLost;
 
     HashMap<Integer, FieldConfig> fieldConfigHashMap;
 
     Sound explosionSound;
     ArrayList<Bullet> bullets;
 
+    Image backgroundImg;
+
+    Group bulletGroup = new Group();
+    Group tankGroup = new Group();
+    Group gameFieldGroup = new Group();
+    Group backgroundGroup = new Group();
+
     public GameController(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
-        this.pause = false;
         this.levelNr = -1;
         this.isRunning = false;
         this.levelLoaded = false;
         this.updateRendering = false;
         this.bullets = new ArrayList<Bullet>();
+        this.gameFinished = false;
+        this.playerLost = false;
 
         // Load field config synced... this shouldn't take long
         fieldConfigHashMap = ConfigLoader.loadFieldConfig("fieldConfig.json");
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("BombSound.mp3"));
+        backgroundImg = new Image(SandBox.getTexture(SandBox.TEXTURE_HORIZON));
+
+        // Prepare stage
+        clear();
+        addActor(backgroundGroup);
+        addActor(gameFieldGroup);
+        addActor(bulletGroup);
+        addActor(tankGroup);
+
+        // Add background
+        backgroundGroup.addActor(backgroundImg);
+
     }
 
-    @Override
-    public void run() {
-        lastFrameTime = 0;
-        int frameDelta = 1000 / FPS;
-        Gdx.app.debug("MyTag", "Starting game thread...");
-
-        synchronized (levelNr) {
-            if (levelNr > 0) {
-                Gdx.app.debug("MyTag", "Loading level...");
-                level = ConfigLoader.loadLevel("maps/map" + levelNr, fieldConfigHashMap);
-                Gdx.app.debug("MyTag", "Done. Loaded level \"" + level.mapConfig.name + "\"");
-            } else {
-                Gdx.app.error("MyTag", "No level to load specified!");
-                return;
-            }
+    public void loadLevel(int nr) {
+        if (nr > 0) {
+            Gdx.app.debug("MyTag", "Loading level...");
+            level = ConfigLoader.loadLevel("maps/map" + nr, fieldConfigHashMap);
+            Gdx.app.debug("MyTag", "Done. Loaded level \"" + level.name + "\"");
+        } else {
+            Gdx.app.error("MyTag", "No level to load specified!");
+            return;
         }
 
-        gameScreen.levelLoaded();
+        // Clear all groups
+        gameFieldGroup.clear();
+        tankGroup.clear();
+        bulletGroup.clear();
+
+        // Initialize parameters
+        activeTankId = 0;
+        levelNr = nr;
+        playerLost = false;
+
+        // Tell gui that loading is done
         isRunning = true;
         levelLoaded = true;
-        gameScreen.requestRendering();
 
-        while (isRunning) {
+        // Adapt background size to gamefield size
+        backgroundImg.setBounds(0, 0, level.gameGrid.getWdith(), level.gameGrid.getHeight());
 
-            if (pause) {
-                pause = false;
-                try {
-                    Gdx.app.debug("MyTag", "Game paused...");
-                    synchronized (thread) {
-                        thread.wait();
-                    }
-                    Gdx.app.debug("MyTag", "Game resumed...");
+        // Add chunks to stage
+        Chunk[][] chunks = level.gameGrid.getChunks();
 
-                } catch (InterruptedException e) {
-                }
-            }
-
-            // Actual game logic goes here
-            updateRendering = level.gameGrid.updateGrid();
-            updateRendering = updateRendering | updateBullets();
-
-
-            // Render if necessary
-            if (updateRendering)
-                gameScreen.requestRendering();
-
-            // Sleep as long as necessary to keep framerate
-            long sleepTime = frameDelta - (System.currentTimeMillis() - lastFrameTime);
-            lastFrameTime = System.currentTimeMillis();
-            sleepTime = Math.max(sleepTime, 0);
-
-            try {
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
+        for (int y = 0; y < chunks.length; y++) {
+            for (int x = 0; x < chunks[0].length; x++) {
+                gameFieldGroup.addActor(chunks[y][x]);
             }
         }
+
+        // Add tanks
+        for (Tank t : level.tanks) {
+            tankGroup.addActor(t);
+        }
     }
+
+    public void setCurrentTankParameters(float gunAngle, float power) {
+
+        Tank t = level.tanks.get(activeTankId);
+
+        t.gunAngle = gunAngle;
+        t.power = power;
+    }
+
+    public void act(float delta) {
+        super.act(delta);
+
+        level.gameGrid.updateGrid();
+        updateBullets(delta);
+        checkTanks(delta);
+    }
+
 
     public Level getLevel() {
         return level;
     }
 
-    private boolean updateBullets() {
+    private boolean updateBullets(float delta) {
         if (bullets.size() == 0)
             return false;
 
@@ -118,25 +142,92 @@ public class GameController implements Runnable {
         synchronized (bullets) {
             for (int i = 0; i < bullets.size(); i++) {
                 Bullet b = bullets.get(i);
-                b.update(0, GRAVITATION);
+                int x = Math.round(b.getCenterPos().x);
+                int y = Math.round(b.getCenterPos().y);
 
-                int x = Math.round(b.getX());
-                int y = Math.round(b.getY());
-
-                if (x < 0 || y < 0)
+                if (x < 0 || y < 0) {
                     removedBullets.add(b);
-
+                    continue;
+                }
                     // TODO Synchronize ?
-                else if (x < getGameFieldWidth() && y < getGameFieldHeight() && level.gameGrid.getField(y, x) >= 0) {
-                    level.gameGrid.executeExplosion(y, x, b.getDamage());
+                // Hit ground ?
+                if (x < getGameFieldWidth() && y < getGameFieldHeight() && level.gameGrid.getField(y, x) >= 0) {
+                    // Explode on gamefield
+                    level.gameGrid.executeExplosion(y, x, b.damage);
+
                     removedBullets.add(b);
                     if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
                         explosionSound.play();
+
+                    // Hit tank indirect ? TODO Check
+                    for (int idx = 0; idx < level.tanks.size(); idx++) {
+                        // Tanks can't hit themselves
+                        if (b.tankId == idx || !level.tanks.get(idx).isAlive())
+                            continue;
+
+                        Tank t = level.tanks.get(idx);
+
+
+                        float dx = t.getCenterPos().x - b.getCenterPos().x;
+                        float dy = t.getCenterPos().y - b.getCenterPos().y;
+                        float dist2 = dx * dx + dy * dy;
+
+                        // TODO Check with rectangle intersect
+                        if (dist2 < 30 * 30) {
+                            t.health -= b.damage / dist2;
+                            removedBullets.add(b);
+
+                            gameScreen.queueMessage("Player " + (b.tankId + 1) + " hit Player " + (idx + 1), 1000);
+                        }
+                    }
+                }
+                // Tank hit direct ?
+                for (int idx = 0; idx < level.tanks.size(); idx++) {
+                    // Tanks can't hit themselves
+                    if (b.tankId == idx || !level.tanks.get(idx).isAlive())
+                        continue;
+
+                    Tank t = level.tanks.get(idx);
+
+                    float dx = t.getCenterPos().x - b.getCenterPos().x;
+                    float dy = t.getCenterPos().y - b.getCenterPos().y;
+                    float dist2 = dx * dx + dy * dy;
+
+                    // TODO Check with rectangle intersect
+                    if (dist2 < 25 * 25) {
+                        t.health -= b.damage;
+                        removedBullets.add(b);
+
+                        if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
+                            explosionSound.play();
+
+                        gameScreen.queueMessage("Player " + (b.tankId + 1) + " hit Player " + (idx + 1), 1000);
+                    }
                 }
             }
-            // Remove from bullet list
+            // Remove from bullet list and as actor
             for (int i = 0; i < removedBullets.size(); i++) {
+                bulletGroup.removeActor(removedBullets.get(i));
                 bullets.remove(removedBullets.get(i));
+            }
+        }
+        return true;
+    }
+
+    public boolean isGameFinished() {
+        return gameFinished;
+    }
+
+    public boolean isLevelLoaded() {
+        return levelLoaded;
+    }
+
+    private boolean checkTanks(float delta) {
+        for (int idx = 0; idx < level.tanks.size(); idx++) {
+            if (!level.tanks.get(idx).isAlive()) {
+                gameScreen.queueMessage("Player " + (idx + 1) + " destroyed!", 10000);
+                gameFinished = true;
+                playerLost = idx == 0;
             }
         }
         return true;
@@ -150,56 +241,29 @@ public class GameController implements Runnable {
         return bullets;
     }
 
-    public void clickedOnGameField(int y, int x) {
+    public void shoot(float speedY, float speedX) {
         if (level != null) {
-            //level.gameGrid.getChunkManager().invaidateCoordinate(y, x);
-            //level.gameGrid.executeExplosion(y,x,10);
             synchronized (bullets) {
-                bullets.add(new Bullet(y, x, 200, (float) (-0.7f + Math.random() * 1.4f), (float) (Math.random() * 0.7f)));
-                Gdx.app.log("MyTag", "Bullet Count: " + bullets.size());
+                Bullet b = new Bullet(activeTankId,
+                        level.tanks.get(activeTankId).getCenterPos().x,
+                        level.tanks.get(activeTankId).getCenterPos().y,
+                        400,
+                        speedX, speedY,
+                        0, GRAVITATION);
+                bullets.add(b);
+                bulletGroup.addActor(b);
             }
+
+            activeTankId++;
+            if (activeTankId > level.tanks.size() - 1)
+                activeTankId = 0;
+            gameScreen.queueMessage("Player " + (activeTankId + 1) + ", your turn!", 1500);
         }
     }
 
-    public void startLevel(int levelNr) {
-        if (thread != null)
-            stopLevel();
-
-        synchronized (this.levelNr) {
-            this.levelNr = levelNr;
-        }
-
-        thread = new Thread(this);
-        thread.start();
+    public boolean getPlayerLost() {
+        return playerLost;
     }
-
-    public void stopLevel() {
-        isRunning = false;
-        levelLoaded = false;
-        if (thread != null) {
-            synchronized (thread) {
-                thread.notify();
-            }
-            thread.interrupt();
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-            }
-        }
-    }
-
-    public void pause() {
-        Gdx.app.debug("MyTag", "Pausing game...");
-        pause = true;
-    }
-
-    public void resume() {
-        Gdx.app.debug("MyTag", "Resuming game...");
-        synchronized (thread) {
-            thread.notify();
-        }
-    }
-
     public int getGameFieldWidth() {
         return level.gameGrid.getWdith();
     }
@@ -210,5 +274,13 @@ public class GameController implements Runnable {
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    public ArrayList<Tank> getTanks() {
+        return level.tanks;
+    }
+
+    public int getActiveTankId() {
+        return activeTankId;
     }
 }

@@ -2,13 +2,12 @@ package com.rottaca.sandbox.gui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.rottaca.sandbox.ctrl.GameFieldCamera;
 import com.rottaca.sandbox.data.Bullet;
 import com.rottaca.sandbox.data.Chunk;
 import com.rottaca.sandbox.data.GameGrid;
-import com.rottaca.sandbox.data.MapConfig;
+import com.rottaca.sandbox.data.Tank;
 
 import java.util.ArrayList;
 
@@ -19,15 +18,8 @@ public class GameFieldSpriteBatch extends SpriteBatch {
 
     private ShaderProgram shaderProgram;
 
-    private TextureRegion bulletTexture;
-    private TextureRegion tankBodyTexture;
-    private TextureRegion tankGunTexture;
-
-    GameFieldSpriteBatch(TextureRegion bullet, TextureRegion tankBody, TextureRegion tankGun) {
+    GameFieldSpriteBatch() {
         super();
-        bulletTexture = bullet;
-        tankBodyTexture = tankBody;
-        tankGunTexture = tankGun;
 
         shaderProgram = new ShaderProgram(Gdx.files.internal("shaders/gameFieldVertexShader.vert"), Gdx.files.internal("shaders/gameFieldFragmentShader.frag"));
         if (!shaderProgram.isCompiled()) {
@@ -39,7 +31,7 @@ public class GameFieldSpriteBatch extends SpriteBatch {
     }
 
 
-    public void drawGame(GameFieldCamera camera, Chunk[][] chunks, ArrayList<Bullet> bullets, MapConfig mc) {
+    public void drawGame(GameFieldCamera camera, Chunk[][] chunks, ArrayList<Bullet> bullets, ArrayList<Tank> tanks) {
         // TODO update camera only if necessary
         camera.updateCamera();
         setProjectionMatrix(camera.combined);
@@ -62,7 +54,7 @@ public class GameFieldSpriteBatch extends SpriteBatch {
         for (int y = visibleChunkNrMinY; y < visibleChunkNrMaxY; y++) {
             for (int x = visibleChunkNrMinX; x < visibleChunkNrMaxX; x++) {
                 Chunk c = chunks[y][x];
-                draw(c.getUpdatedChunk(), c.getPosX(), c.getPosY());
+                c.draw(this, 1);
             }
         }
         flush();
@@ -70,11 +62,14 @@ public class GameFieldSpriteBatch extends SpriteBatch {
         setShader(null);
         for (int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
-            draw(bulletTexture, b.getX() - bulletTexture.getRegionWidth() / 2, b.getY() - bulletTexture.getRegionHeight() / 2);
+            b.draw(this, 1);
         }
 
-        draw(tankGunTexture, mc.leftPlayerPos.x, mc.leftPlayerPos.y - tankGunTexture.getRegionHeight() / 2 + 2);
-        draw(tankBodyTexture, mc.leftPlayerPos.x - tankBodyTexture.getRegionWidth() / 2, mc.leftPlayerPos.y - tankBodyTexture.getRegionHeight() / 2);
+        for (Tank t : tanks) {
+
+
+            t.draw(this, 1);
+        }
 
         end();
     }

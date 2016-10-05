@@ -72,8 +72,8 @@ public class GameGrid {
                     // Go from bottom to top
                     for (int y = 0; y < c.getHeight(); y++) {
                         for (int x = 0; x < c.getWidth(); x++) {
-                            int gridX = x + c.getPosX();
-                            int gridY = y + c.getPosY();
+                            int gridX = Math.round(x + c.getX());
+                            int gridY = Math.round(y + c.getY());
 
                             int MapId = fieldData[gridY][gridX];
                             // Field empty and a field above exists?

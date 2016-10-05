@@ -1,9 +1,21 @@
 {
   MapConfig: {
     Name: "Map 1",
-    LeftPlayerPosX: 90,
-    LeftPlayerPosY: 100,
-    RightPlayerPosX: 587,
-    RightPlayerPosY: 73
+    Tanks: [
+      {
+        Name: "Player 1",
+        Health: 2000,
+        PosX: 90,
+        PosY: 100,
+        LookDir: "Right"
+      },
+      {
+        Name: "Player 2",
+        Health: 2000,
+        PosX: 587,
+        PosY: 73,
+        LookDir: "Left"
+      }
+    ]
   }
 }

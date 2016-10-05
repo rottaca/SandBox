@@ -30,8 +30,8 @@ public class SandBox extends Game {
 
     public static Skin skin;
 
-    private TextureAtlas textureAtlas;
-    private HashMap<String, TextureRegion> textureRegionHashMap = new HashMap<String, TextureRegion>();
+    private static TextureAtlas textureAtlas;
+    private static HashMap<String, TextureRegion> textureRegionHashMap = new HashMap<String, TextureRegion>();
     public static final String TEXTURE_TANKBODY = "TankBody";
     public static final String TEXTURE_TANKGUN = "TankGun";
     public static final String TEXTURE_BULLET = "Bullet";
@@ -41,7 +41,7 @@ public class SandBox extends Game {
 
     @Override
     public void create() {
-        Gdx.app.setLogLevel(Application.LOG_INFO);
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         initializePreferences();
         // TODO Show loading screen
         loadTextures();
@@ -124,7 +124,7 @@ public class SandBox extends Game {
         ConfigLoader.prefs.flush();
     }
 
-    private void loadTextures() {
+    private static void loadTextures() {
         textureAtlas = new TextureAtlas(Gdx.files.internal("textures/pack.atlas"));
 
         textureRegionHashMap.put(TEXTURE_TANKBODY, textureAtlas.findRegion(TEXTURE_TANKBODY));
@@ -135,7 +135,7 @@ public class SandBox extends Game {
         textureRegionHashMap.put(TEXTURE_MENUBACKGROUND, textureAtlas.findRegion(TEXTURE_MENUBACKGROUND));
     }
 
-    public TextureRegion getTexture(String key) {
+    public static TextureRegion getTexture(String key) {
         return textureRegionHashMap.get(key);
     }
 }
