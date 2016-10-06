@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rottaca.sandbox.data.Bullet;
 import com.rottaca.sandbox.data.Chunk;
 import com.rottaca.sandbox.data.FieldConfig;
@@ -43,7 +44,8 @@ public class GameController extends Stage {
     Group gameFieldGroup = new Group();
     Group backgroundGroup = new Group();
 
-    public GameController(GameScreen gameScreen) {
+    public GameController(GameScreen gameScreen, Viewport vp) {
+        super(vp);
         this.gameScreen = gameScreen;
         this.levelNr = -1;
         this.isRunning = false;

@@ -1,6 +1,5 @@
 package com.rottaca.sandbox.data;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -86,7 +85,7 @@ public class Tank extends Group {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
 
-        Gdx.app.log("MyTag", "Origin: " + tankGun.getOriginX() + "x" + tankGun.getOriginY());
+        //Gdx.app.log("MyTag", "Origin: " + tankGun.getOriginX() + "x" + tankGun.getOriginY());
 //        tmp.set(0, 0);
 //        Vector2 stagePos = localToStageCoordinates(tmp);
 //

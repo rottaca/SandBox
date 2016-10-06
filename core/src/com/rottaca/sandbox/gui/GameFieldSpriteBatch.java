@@ -33,7 +33,7 @@ public class GameFieldSpriteBatch extends SpriteBatch {
 
     public void drawGame(GameFieldCamera camera, Chunk[][] chunks, ArrayList<Bullet> bullets, ArrayList<Tank> tanks) {
         // TODO update camera only if necessary
-        camera.updateCamera();
+        camera.update();
         setProjectionMatrix(camera.combined);
 
         begin();

@@ -37,9 +37,10 @@ public class GameFieldCamera extends OrthographicCamera {
         this.up2Date = false;
     }
 
-    public synchronized void updateCamera() {
-        if (up2Date)
+    public synchronized void update() {
+        if (up2Date) {
             return;
+        }
 
         up2Date = true;
         cameraHeight = gameFieldHeight / zoomFactor;
@@ -47,7 +48,7 @@ public class GameFieldCamera extends OrthographicCamera {
 
         setToOrtho(false, cameraWidth, cameraHeight);
         translate(cameraPos.x, cameraPos.y);
-        update();
+        super.update();
     }
 
     public Vector2 getCameraPos() {

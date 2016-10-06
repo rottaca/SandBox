@@ -42,7 +42,7 @@ TankBody
 TankGun
   rotate: false
   xy: 9, 200
-  size: 45, 7
-  orig: 45, 7
+  size: 28, 7
+  orig: 28, 7
   offset: 0, 0
   index: -1

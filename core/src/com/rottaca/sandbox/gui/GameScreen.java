@@ -6,8 +6,6 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -34,12 +32,11 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     private GameController gameController;
     private SandBox sandBox;
-    private SpriteBatch batch;
-    private Stage stage;
+    private ExtendViewport uiViewport;
+    private Stage uiStage;
 
-    private OrthographicCamera OverlayCamera;
     private GameFieldCamera gameFieldCamera;
-    private ExtendViewport viewport;
+    private ExtendViewport gameViewPort;
 
     private Vector2 touchPosDrag = new Vector2();
     private Vector2 cameraPos = new Vector2();
@@ -59,6 +56,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private Table tableGameOverlay;
     private Table tableLoadingOverlay;
 
+    // Viewport for game stage
     private final int VIEWPORT_WIDTH = 300;
     private final int VIEWPORT_HEIGHT = 200;
 
@@ -69,7 +67,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private boolean dialogVisible;
     private Dialog finishedDialog;
 
-    private long frameCnt = 0;
 
     public GameScreen(SandBox sandBox) {
         this.sandBox = sandBox;
@@ -78,31 +75,25 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     public void create() {
         gameFieldCamera = null;
-        batch = sandBox.getBatch();
 
-        // pick a viewport that suits your thing, ExtendViewport is a good start
-        OverlayCamera = new OrthographicCamera();
-        viewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, OverlayCamera);
-        stage = new Stage(viewport);
+        // pick a gameViewPort that suits your thing, ExtendViewport is a good start
+        uiViewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        uiStage = new Stage(uiViewport);
 
         inputHandler = new InputHandler(this);
 
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
-        multiplexer.addProcessor(new GestureDetector(inputHandler));
-        Gdx.input.setInputProcessor(multiplexer);
 
         tableGameOverlay = new Table();
         tableGameOverlay.setFillParent(true);
         //tableGameOverlay.setDebug(true);
         tableGameOverlay.defaults();
-        stage.addActor(tableGameOverlay);
+        uiStage.addActor(tableGameOverlay);
 
         tableLoadingOverlay = new Table();
         tableLoadingOverlay.setFillParent(true);
         tableLoadingOverlay.defaults();
         //tableLoadingOverlay.setDebug(true);
-        stage.addActor(tableLoadingOverlay);
+        uiStage.addActor(tableLoadingOverlay);
 
         buttonBack = new TextButton("Back", SandBox.skin, "default");
         buttonShoot = new TextButton("Shoot", SandBox.skin, "default");
@@ -175,8 +166,14 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         }.button("Menu ", 1).button("Next", 2).button("Retry", 3);
 
         // Start game
-        gameController = new GameController(this);
-        loadingLevel();
+        gameViewPort = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        gameController = new GameController(this, gameViewPort);
+
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(uiStage);
+        multiplexer.addProcessor(new GestureDetector(inputHandler));
+        multiplexer.addProcessor(gameController);
+        Gdx.input.setInputProcessor(multiplexer);
 
         gameController.loadLevel(1);
         levelLoaded();
@@ -191,10 +188,25 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         if (gameController != null && gameController.isLevelLoaded()) {
             gameController.setCurrentTankParameters(angleSlider.getValue(), powerSlider.getValue());
             gameController.act(delta);
+            gameController.getViewport().apply();
             gameController.draw();
         }
 
         // Update overlay data
+        updateGui();
+        // Draw Overlay at the end
+        uiStage.act(delta);
+        uiStage.getViewport().apply();
+        uiStage.draw();
+
+    }
+
+    public void queueMessage(String msg, long duration) {
+        clearMessageQueue();
+        messageAnimator.addMessage(msg, duration);
+    }
+
+    private void updateGui() {
         if (gameController != null && gameController.isRunning()) {
             String msg = messageAnimator.getMessageAndUpdate();
             if (msg != null) {
@@ -211,23 +223,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         if (gameController != null && gameController.isGameFinished() && !dialogVisible) {
             finishedDialog.text(gameController.getPlayerLost() ? "You lost the level! Retry?" : "You won!");
             finishedDialog.getTitleLabel().setText(gameController.getPlayerLost() ? "Level failed" : "Level cleared");
-            finishedDialog.show(stage);
+            finishedDialog.show(uiStage);
             dialogVisible = true;
         }
-
-        // Draw Overlay at the end
-        batch.setProjectionMatrix(OverlayCamera.combined);
-        batch.disableBlending();
-        batch.begin();
-        stage.act(delta);
-        stage.draw();
-        batch.end();
-
-    }
-
-    public void queueMessage(String msg, long duration) {
-        clearMessageQueue();
-        messageAnimator.addMessage(msg, duration);
     }
 
     public void clearMessageQueue() {
@@ -240,8 +238,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     public void levelLoaded() {
         tableLoadingOverlay.setVisible(false);
-        gameFieldCamera = new GameFieldCamera(gameController.getGameFieldHeight(), gameController.getGameFieldWidth(), viewport.getWorldWidth() / viewport.getWorldHeight());
-        gameFieldCamera.updateCamera();
+        gameFieldCamera = new GameFieldCamera(gameController.getGameFieldHeight(), gameController.getGameFieldWidth(), gameViewPort.getWorldWidth() / gameViewPort.getWorldHeight());
+        gameFieldCamera.update();
         gameController.getViewport().setCamera(gameFieldCamera);
         inputHandler.setData(gameFieldCamera, gameController);
     }
@@ -266,7 +264,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
     @Override
     public void dispose() {
-        stage.dispose();
+        uiStage.dispose();
         gameController.dispose();
     }
 
