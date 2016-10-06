@@ -247,7 +247,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     public void draggedGameField(float dX, float dY) {
         cameraPos.x = gameFieldCamera.setCameraPosX(cameraPos.x + dX);
         cameraPos.y = gameFieldCamera.setCameraPosY(cameraPos.y + dY);
-        Gdx.app.log("MyTag", "dragged cam: " + cameraPos.x + "x" + cameraPos.y);
+        Gdx.app.debug("MyTag", "dragged cam: " + cameraPos.x + "x" + cameraPos.y);
     }
 
     public void zoomedGameField(float dZoom) {
