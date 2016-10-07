@@ -306,10 +306,17 @@ public class GameController extends Stage {
 
     public void nextPlayer() {
         level.tanks.get(activeTankId).setActive(false);
-        activeTankId++;
-        if (activeTankId > level.tanks.size() - 1)
-            activeTankId = 0;
+
+        // Skip dead tanks
+        // TODO Could cause dead lock ?
+        do {
+            activeTankId++;
+            if (activeTankId > level.tanks.size() - 1)
+                activeTankId = 0;
+        } while (!level.tanks.get(activeTankId).isAlive());
+
         level.tanks.get(activeTankId).setActive(true);
+
 
         // Human player or bot ?
         if (activeTankId == HUMAN_TANK_ID) {
@@ -321,7 +328,6 @@ public class GameController extends Stage {
             float speedX = (float) Math.cos(Math.toRadians(level.tanks.get(activeTankId).gunAngle));
             float speedY = (float) Math.sin(Math.toRadians(level.tanks.get(activeTankId).gunAngle));
             float power = level.tanks.get(activeTankId).power;
-
 
             shoot(speedY * power, speedX * power);
 

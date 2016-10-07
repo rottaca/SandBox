@@ -61,8 +61,8 @@ public class Tank extends Group {
 
 
         maxHealth = health;
-        gunAngle = 0;
         lookingRight = tankJson.getString(ConfigLoader.TANK_TAG_LOOK_DIR).compareTo("Right") == 0;
+        gunAngle = lookingRight ? 0 : -180;
         power = 0;
     }
 
@@ -110,26 +110,31 @@ public class Tank extends Group {
                 getWidth() + 2 * borderWidth,
                 barHeight + 2 * borderWidth);
 
-        // Border
-        if (hratio > 0.5)
-            batch.setColor(0, 1, 0, parentAlpha);
-        else if (hratio > 0.3)
-            batch.setColor(1, 0.4f, 0, parentAlpha);
-        else
-            batch.setColor(1, 0, 0, parentAlpha);
+        // Only render health bar if tank is alive
+        if (health > 0) {
+            // Border
+            if (hratio > 0.5)
+                batch.setColor(0, 1, 0, parentAlpha);
+            else if (hratio > 0.3)
+                batch.setColor(1, 0.4f, 0, parentAlpha);
+            else
+                batch.setColor(1, 0, 0, parentAlpha);
 
-        // Health bar
-        batch.draw(texWhite,
-                xL,
-                y - barHeight / 2,
-                hratio * getWidth(),
-                barHeight);
+            // Health bar
+            batch.draw(texWhite,
+                    xL,
+                    y - barHeight / 2,
+                    hratio * getWidth(),
+                    barHeight);
 
-        batch.setColor(1, 1, 1, parentAlpha);
+            batch.setColor(1, 1, 1, parentAlpha);
 
-        // TODO Render gun parameters if tank is active (power and possible flight route)
-        if (isActive) {
+            // TODO Render gun parameters if tank is active (power and possible flight route)
+            if (isActive) {
 
+            }
         }
+
+
     }
 }

@@ -14,7 +14,8 @@ public class TankAI {
     private Vector2 V0, X0, X1, A;
 
     // Higher values cause more error when calculating the optimal gun angle
-    private float errorMargin = 30f;
+    // Range for modifing target position
+    private float errorMargin = 100f;
 
     public TankAI() {
         V0 = new Vector2();
@@ -32,9 +33,13 @@ public class TankAI {
         X0.set(aiTank.getX(), aiTank.getY());
         A.set(0, GameController.GRAVITATION);
 
+
+        // To avoid a perfect AI, add an error to the target X position
+        X1.add(-0.5f * errorMargin + errorMargin * (float) Math.random(), -0.5f * errorMargin + errorMargin * (float) Math.random());
+
         // Compute shoot angle and power according to given data
-        V0.x = (X1.x - X0.x - A.x * flightTime * flightTime / 2) / flightTime - errorMargin + errorMargin * (float) (Math.random());
-        V0.y = (X1.y - X0.y - A.y * flightTime * flightTime / 2) / flightTime - errorMargin + errorMargin * (float) (Math.random());
+        V0.x = (X1.x - X0.x - A.x * flightTime * flightTime / 2) / flightTime;
+        V0.y = (X1.y - X0.y - A.y * flightTime * flightTime / 2) / flightTime;
 
         aiTank.power = V0.len();
         aiTank.gunAngle = (float) Math.toDegrees(Math.atan2(V0.y, V0.x));
