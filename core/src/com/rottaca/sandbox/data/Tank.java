@@ -87,9 +87,6 @@ public class Tank extends Group {
     public void act(float delta) {
         super.act(delta);
         float gunAngleDraw = gunAngle;
-        if (!lookingRight)
-            gunAngleDraw = -gunAngle + 180;
-
         tankGun.setRotation(gunAngleDraw);
     }
 

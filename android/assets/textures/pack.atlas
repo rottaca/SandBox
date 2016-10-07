@@ -4,13 +4,6 @@ size: 1024,512
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-Black
-  rotate: false
-  xy: 9, 191
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
 Bullet
   rotate: false
   xy: 2, 2
@@ -20,16 +13,9 @@ Bullet
   index: -1
 BulletLine
   rotate: false
-  xy: 674, 505
+  xy: 656, 505
   size: 20, 4
   orig: 20, 4
-  offset: 0, 0
-  index: -1
-Green
-  rotate: false
-  xy: 604, 451
-  size: 16, 16
-  orig: 16, 16
   offset: 0, 0
   index: -1
 Horizon
@@ -46,20 +32,6 @@ MenuBackground
   orig: 600, 300
   offset: 0, 0
   index: -1
-Orange
-  rotate: false
-  xy: 656, 493
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-Red
-  rotate: false
-  xy: 9, 173
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
 TankBody
   rotate: false
   xy: 604, 469
@@ -69,14 +41,14 @@ TankBody
   index: -1
 TankGun
   rotate: false
-  xy: 622, 460
+  xy: 604, 460
   size: 19, 7
   orig: 19, 7
   offset: 0, 0
   index: -1
 White
   rotate: false
-  xy: 27, 191
+  xy: 9, 191
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

@@ -16,11 +16,14 @@ import com.rottaca.sandbox.gui.GameScreen;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.removeActor;
+
 public class GameController extends Stage {
 
     GameScreen gameScreen = null;
 
-    final static float GRAVITATION = -30f;
+    public final static float GRAVITATION = -30f;
+    final static int HUMAN_TANK_ID = 0;           // Tank 0 is player
 
     boolean isRunning;
     boolean levelLoaded;
@@ -43,6 +46,9 @@ public class GameController extends Stage {
     Group tankGroup = new Group();
     Group gameFieldGroup = new Group();
     Group backgroundGroup = new Group();
+
+    TankAI tankAI;
+
 
     public GameController(GameScreen gameScreen, Viewport vp) {
         super(vp);
@@ -69,6 +75,9 @@ public class GameController extends Stage {
 
         // Add background
         backgroundGroup.addActor(backgroundImg);
+
+        // Setup AI
+        tankAI = new TankAI();
 
     }
 
@@ -140,7 +149,7 @@ public class GameController extends Stage {
         if (bullets.size() == 0)
             return false;
 
-        ArrayList<Bullet> removedBullets = new ArrayList<Bullet>();
+        final ArrayList<Bullet> removedBullets = new ArrayList<Bullet>();
 
         synchronized (bullets) {
             for (int i = 0; i < bullets.size(); i++) {
@@ -210,8 +219,11 @@ public class GameController extends Stage {
             }
             // Remove from bullet list and as actor
             for (int i = 0; i < removedBullets.size(); i++) {
-                bulletGroup.removeActor(removedBullets.get(i));
-                bullets.remove(removedBullets.get(i));
+                Bullet b = removedBullets.get(i);
+
+                b.addAction(removeActor());
+                bullets.remove(b);
+
             }
         }
         return true;
@@ -226,12 +238,21 @@ public class GameController extends Stage {
     }
 
     private boolean checkTanks(float delta) {
+        int enemiesDestroyed = 0;
         for (int idx = 0; idx < level.tanks.size(); idx++) {
             if (!level.tanks.get(idx).isAlive()) {
                 gameScreen.queueMessage("Player " + (idx + 1) + " destroyed!", 10000);
-                gameFinished = true;
-                playerLost = idx == 0;
+                if (idx == 0) {
+                    gameFinished = true;
+                    playerLost = idx == 0;
+                } else {
+                    enemiesDestroyed++;
+                }
             }
+        }
+        if (enemiesDestroyed == level.tanks.size() - 1) {
+            gameFinished = true;
+            playerLost = false;
         }
         return true;
     }
@@ -256,14 +277,7 @@ public class GameController extends Stage {
                 bullets.add(b);
                 bulletGroup.addActor(b);
             }
-
-            level.tanks.get(activeTankId).setActive(false);
-            activeTankId++;
-            if (activeTankId > level.tanks.size() - 1)
-                activeTankId = 0;
-            level.tanks.get(activeTankId).setActive(true);
-
-            gameScreen.queueMessage("Player " + (activeTankId + 1) + ", your turn!", 1500);
+            nextPlayer();
         }
     }
 
@@ -288,5 +302,29 @@ public class GameController extends Stage {
 
     public int getActiveTankId() {
         return activeTankId;
+    }
+
+    public void nextPlayer() {
+        level.tanks.get(activeTankId).setActive(false);
+        activeTankId++;
+        if (activeTankId > level.tanks.size() - 1)
+            activeTankId = 0;
+        level.tanks.get(activeTankId).setActive(true);
+
+        // Human player or bot ?
+        if (activeTankId == HUMAN_TANK_ID) {
+            gameScreen.queueMessage("Player " + (activeTankId + 1) + ", your turn!", 1500);
+        } else {
+            // Setup tank parameters
+            tankAI.prepareTank(level.gameGrid, level.tanks, level.tanks.get(activeTankId), level.tanks.get(0));
+            // Shoot
+            float speedX = (float) Math.cos(Math.toRadians(level.tanks.get(activeTankId).gunAngle));
+            float speedY = (float) Math.sin(Math.toRadians(level.tanks.get(activeTankId).gunAngle));
+            float power = level.tanks.get(activeTankId).power;
+
+
+            shoot(speedY * power, speedX * power);
+
+        }
     }
 }
