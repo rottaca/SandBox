@@ -20,7 +20,7 @@ public class GameController extends Stage {
 
     GameScreen gameScreen = null;
 
-    final static float GRAVITATION = -0.01f;
+    final static float GRAVITATION = -30f;
 
     boolean isRunning;
     boolean levelLoaded;
@@ -89,6 +89,7 @@ public class GameController extends Stage {
 
         // Initialize parameters
         activeTankId = 0;
+        level.tanks.get(0).setActive(true);
         levelNr = nr;
         playerLost = false;
 
@@ -256,9 +257,12 @@ public class GameController extends Stage {
                 bulletGroup.addActor(b);
             }
 
+            level.tanks.get(activeTankId).setActive(false);
             activeTankId++;
             if (activeTankId > level.tanks.size() - 1)
                 activeTankId = 0;
+            level.tanks.get(activeTankId).setActive(true);
+
             gameScreen.queueMessage("Player " + (activeTankId + 1) + ", your turn!", 1500);
         }
     }

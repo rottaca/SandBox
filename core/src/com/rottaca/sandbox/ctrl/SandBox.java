@@ -38,6 +38,7 @@ public class SandBox extends Game {
     public static final String TEXTURE_BULLETLINE = "BulletLine";
     public static final String TEXTURE_HORIZON = "Horizon";
     public static final String TEXTURE_MENUBACKGROUND = "MenuBackground";
+    public static final String TEXTURE_WHITE = "White";
 
     @Override
     public void create() {
@@ -133,6 +134,7 @@ public class SandBox extends Game {
         textureRegionHashMap.put(TEXTURE_BULLETLINE, textureAtlas.findRegion(TEXTURE_BULLETLINE));
         textureRegionHashMap.put(TEXTURE_HORIZON, textureAtlas.findRegion(TEXTURE_HORIZON));
         textureRegionHashMap.put(TEXTURE_MENUBACKGROUND, textureAtlas.findRegion(TEXTURE_MENUBACKGROUND));
+        textureRegionHashMap.put(TEXTURE_WHITE, textureAtlas.findRegion(TEXTURE_WHITE));
     }
 
     public static TextureRegion getTexture(String key) {

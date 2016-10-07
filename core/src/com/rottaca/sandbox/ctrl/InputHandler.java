@@ -27,7 +27,7 @@ public class InputHandler implements GestureDetector.GestureListener {
     private final int TOL_AIMING_SQUARED = 20 * 20;
     private final float ZOOM_MULTIPLICATOR = 0.00001f;
     private final float DRAG_MULTIPLICATOR = 0.2f;
-    private final float SHOOT_MULTIPLICATOR = 0.04f;
+    private final float SHOOT_MULTIPLICATOR = 1.0f;
 
     private boolean dataSet;
 

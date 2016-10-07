@@ -101,8 +101,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         statusLabel = new Label("Player 1", SandBox.skin, "defaultBlack");
         angleSlider = new Slider(-20, 200, 0.1f, true, SandBox.skin, "default-vertical");
         angleSlider.setValue(10);
-        powerSlider = new Slider(0, 2.5f, 0.01f, true, SandBox.skin, "default-vertical");
-        angleSlider.setValue(1);
+        powerSlider = new Slider(40, 150, 0.01f, true, SandBox.skin, "default-vertical");
+        powerSlider.setValue(100);
 
         // Define layout
         tableGameOverlay.add(angleSlider).pad(1).left().expandY();

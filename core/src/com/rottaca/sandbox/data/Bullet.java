@@ -37,8 +37,8 @@ public class Bullet extends Image {
     public void act(float delta) {
         super.act(delta);
 
-        speed.add(acc);
-        setPosition(getX() + speed.x, getY() + speed.y);
+        speed.add(acc.x * delta, acc.y * delta);
+        setPosition(getX() + speed.x * delta, getY() + speed.y * delta);
     }
 
     @Override
