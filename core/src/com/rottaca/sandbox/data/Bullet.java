@@ -1,5 +1,7 @@
 package com.rottaca.sandbox.data;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -14,6 +16,11 @@ public class Bullet extends Image {
     public Vector2 acc = new Vector2();
 
     private Vector2 centerPos = new Vector2();
+    private boolean exploding;
+
+    private Animation explosionAnimation;
+    private TextureRegion keyFrame;
+    private float stateTime;
 
     public Bullet(int tankId, float x, float y, float damage, float speedX, float speedY, float accX, float accY) {
         TextureRegion textureRegion = SandBox.getTexture(SandBox.TEXTURE_BULLET);
@@ -26,6 +33,10 @@ public class Bullet extends Image {
         acc.set(accX, accY);
         this.damage = damage;
         this.tankId = tankId;
+        exploding = false;
+        stateTime = 0;
+
+        explosionAnimation = new Animation(0.1f, SandBox.getTexturesBulletExplosion());
     }
 
     public Vector2 getCenterPos() {
@@ -36,14 +47,28 @@ public class Bullet extends Image {
     @Override
     public void act(float delta) {
         super.act(delta);
+        if (!exploding) {
+            speed.add(acc.x * delta, acc.y * delta);
+            setPosition(getX() + speed.x * delta, getY() + speed.y * delta);
+        }
+    }
 
-        speed.add(acc.x * delta, acc.y * delta);
-        setPosition(getX() + speed.x * delta, getY() + speed.y * delta);
+    public void setExploding() {
+        exploding = true;
+    }
+
+    public boolean getExploding() {
+        return exploding;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
+        if (!exploding)
+            super.draw(batch, parentAlpha);
+        else {
+            stateTime += Gdx.graphics.getDeltaTime();
+            keyFrame = explosionAnimation.getKeyFrame(stateTime, true);
+            batch.draw(keyFrame, getX() - keyFrame.getRegionWidth() / 2, getY() - keyFrame.getRegionHeight() / 2);
+        }
     }
-
 }

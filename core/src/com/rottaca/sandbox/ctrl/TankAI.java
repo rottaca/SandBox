@@ -16,7 +16,7 @@ public class TankAI {
 
     // Higher values cause more error when calculating the optimal gun angle
     // Range for modifing target position
-    private float errorMargin = 250f;
+    private float errorMargin = 150f;
 
     public TankAI() {
         V0 = new Vector2();

@@ -158,12 +158,12 @@ public class GameController extends Stage {
     public void act(float delta) {
         super.act(delta);
 
-        level.gameGrid.updateGrid();
-
-        if (!updateBullets(delta) && roundFinished)
-            nextPlayer();
-
-        checkTanks(delta);
+        if (!gameFinished) {
+            level.gameGrid.updateGrid();
+            if (!updateBullets(delta) && roundFinished)
+                nextPlayer();
+            checkTanks(delta);
+        }
     }
 
 
@@ -192,10 +192,8 @@ public class GameController extends Stage {
                 if (x < getGameFieldWidth() && y < getGameFieldHeight() && level.gameGrid.getField(y, x) >= 0) {
                     // Explode on gamefield
                     level.gameGrid.executeExplosion(y, x, b.damage);
-
                     removedBullets.add(b);
-                    if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
-                        explosionSound.play();
+                    b.setExploding();
 
                     // Hit tank indirect ? TODO Check
 //                    for (int idx = 0; idx < level.tanks.size(); idx++) {
@@ -235,9 +233,7 @@ public class GameController extends Stage {
                     if (tmpRect.overlaps(tmpRect2)) {
                         t.health -= b.damage;
                         removedBullets.add(b);
-
-                        if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
-                            explosionSound.play();
+                        b.setExploding();
 
                         gameScreen.queueMessage("Player " + (b.tankId + 1) + " hit Player " + (idx + 1), 1000);
                     }
@@ -247,7 +243,12 @@ public class GameController extends Stage {
             for (int i = 0; i < removedBullets.size(); i++) {
                 Bullet b = removedBullets.get(i);
 
-                b.addAction(removeActor());
+                if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
+                    explosionSound.play();
+                if (b.getExploding())
+                    b.addAction(sequence(delay(0.3f), removeActor()));
+                else
+                    b.addAction(removeActor());
                 bullets.remove(b);
 
             }

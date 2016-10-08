@@ -10,10 +10,17 @@
         LookDir: "Right"
       },
       {
-        Name: "Player 2",
+        Name: "Bot 1",
         Health: 2000,
         PosX: 587,
         PosY: 71,
+        LookDir: "Left"
+      },
+      {
+        Name: "Bot 2",
+        Health: 2000,
+        PosX: 217,
+        PosY: 45,
         LookDir: "Left"
       }
     ]

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Array;
 import com.rottaca.sandbox.gui.AboutScreen;
 import com.rottaca.sandbox.gui.GameScreen;
 import com.rottaca.sandbox.gui.MainMenuScreen;
@@ -30,7 +31,7 @@ public class SandBox extends Game {
 
     public static Skin skin;
 
-    private static TextureAtlas textureAtlas;
+    private static TextureAtlas mainTextureAtlas;
     private static HashMap<String, TextureRegion> textureRegionHashMap = new HashMap<String, TextureRegion>();
     public static final String TEXTURE_TANKBODY = "TankBody";
     public static final String TEXTURE_TANKGUN = "TankGun";
@@ -39,6 +40,8 @@ public class SandBox extends Game {
     public static final String TEXTURE_HORIZON = "Horizon";
     public static final String TEXTURE_MENUBACKGROUND = "MenuBackground";
     public static final String TEXTURE_WHITE = "White";
+
+    private static TextureAtlas bulletExplusionTextureAtlas;
 
     @Override
     public void create() {
@@ -85,7 +88,7 @@ public class SandBox extends Game {
     public void dispose() {
         backgroundMusic.dispose();
         batch.dispose();
-        textureAtlas.dispose();
+        mainTextureAtlas.dispose();
     }
 
     public SpriteBatch getBatch() {
@@ -126,18 +129,25 @@ public class SandBox extends Game {
     }
 
     private static void loadTextures() {
-        textureAtlas = new TextureAtlas(Gdx.files.internal("textures/pack.atlas"));
+        mainTextureAtlas = new TextureAtlas(Gdx.files.internal("textures/main/pack.atlas"));
 
-        textureRegionHashMap.put(TEXTURE_TANKBODY, textureAtlas.findRegion(TEXTURE_TANKBODY));
-        textureRegionHashMap.put(TEXTURE_TANKGUN, textureAtlas.findRegion(TEXTURE_TANKGUN));
-        textureRegionHashMap.put(TEXTURE_BULLET, textureAtlas.findRegion(TEXTURE_BULLET));
-        textureRegionHashMap.put(TEXTURE_BULLETLINE, textureAtlas.findRegion(TEXTURE_BULLETLINE));
-        textureRegionHashMap.put(TEXTURE_HORIZON, textureAtlas.findRegion(TEXTURE_HORIZON));
-        textureRegionHashMap.put(TEXTURE_MENUBACKGROUND, textureAtlas.findRegion(TEXTURE_MENUBACKGROUND));
-        textureRegionHashMap.put(TEXTURE_WHITE, textureAtlas.findRegion(TEXTURE_WHITE));
+        textureRegionHashMap.put(TEXTURE_TANKBODY, mainTextureAtlas.findRegion(TEXTURE_TANKBODY));
+        textureRegionHashMap.put(TEXTURE_TANKGUN, mainTextureAtlas.findRegion(TEXTURE_TANKGUN));
+        textureRegionHashMap.put(TEXTURE_BULLET, mainTextureAtlas.findRegion(TEXTURE_BULLET));
+        textureRegionHashMap.put(TEXTURE_BULLETLINE, mainTextureAtlas.findRegion(TEXTURE_BULLETLINE));
+        textureRegionHashMap.put(TEXTURE_HORIZON, mainTextureAtlas.findRegion(TEXTURE_HORIZON));
+        textureRegionHashMap.put(TEXTURE_MENUBACKGROUND, mainTextureAtlas.findRegion(TEXTURE_MENUBACKGROUND));
+        textureRegionHashMap.put(TEXTURE_WHITE, mainTextureAtlas.findRegion(TEXTURE_WHITE));
+
+        bulletExplusionTextureAtlas = new TextureAtlas(Gdx.files.internal("textures/bulletExplosion/pack.atlas"));
+        bulletExplusionTextureAtlas.getRegions();
     }
 
     public static TextureRegion getTexture(String key) {
         return textureRegionHashMap.get(key);
+    }
+
+    public static Array<TextureAtlas.AtlasRegion> getTexturesBulletExplosion() {
+        return bulletExplusionTextureAtlas.getRegions();
     }
 }

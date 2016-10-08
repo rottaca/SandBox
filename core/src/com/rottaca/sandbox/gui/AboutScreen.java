@@ -45,7 +45,7 @@ public class AboutScreen extends ScreenAdapter {
         //table.setDebug(true);
         stage.addActor(table);
 
-        label = new Label("Development\nAndreas Rottach\nBackground Music\nhttp://www.bensound.com\nSound Effects\nwww.soundbible.com", SandBox.skin, "defaultBlack");
+        label = new Label("Development\nAndreas Rottach\nBackground Music\nwww.bensound.com\nSound Effects\nwww.soundbible.com", SandBox.skin, "defaultBlack");
         buttonBack = new TextButton("Back", SandBox.skin, "default");
 
         // Define layout
@@ -61,7 +61,7 @@ public class AboutScreen extends ScreenAdapter {
                 sandBox.goToScreen(SandBox.ScreenName.MAIN);
             }
         });
-        menuBackgroundTexture = sandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND);
+        menuBackgroundTexture = SandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND);
     }
 
     @Override
