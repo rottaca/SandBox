@@ -6,14 +6,14 @@
         Name: "Player 1",
         Health: 2000,
         PosX: 90,
-        PosY: 100,
+        PosY: 97,
         LookDir: "Right"
       },
       {
         Name: "Player 2",
-        Health: 500,
+        Health: 2000,
         PosX: 587,
-        PosY: 73,
+        PosY: 71,
         LookDir: "Left"
       }
     ]

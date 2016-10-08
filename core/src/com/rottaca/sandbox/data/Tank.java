@@ -19,8 +19,7 @@ public class Tank extends Group {
 
     public boolean isActive;
     public boolean lookingRight;
-    public float gunAngle;
-    public float power;
+    private Vector2 power;
 
     private Image tankGun;
     private Image tankBody;
@@ -51,19 +50,31 @@ public class Tank extends Group {
         setBounds(tmp.x - tankBody.getWidth() / 2, tmp.y - tankBody.getHeight() / 2, tankBody.getWidth(), tankBody.getHeight());
 
         tankGun.setOrigin(0, tankGun.getHeight() / 2);
-        tankGun.setPosition(tankBody.getWidth() / 2, tankBody.getHeight() / 2);
-
+        tankGun.setPosition(tankBody.getWidth() / 2, 19);
 
         texWhite = SandBox.getTexture(SandBox.TEXTURE_WHITE);
 
         name = tankJson.getString(ConfigLoader.TANK_TAG_NAME);
         health = tankJson.getInt(ConfigLoader.TANK_TAG_HEALTH);
 
-
         maxHealth = health;
         lookingRight = tankJson.getString(ConfigLoader.TANK_TAG_LOOK_DIR).compareTo("Right") == 0;
-        gunAngle = lookingRight ? 0 : -180;
-        power = 0;
+        power = new Vector2(lookingRight ? 1 : -1, 0);
+    }
+
+    public Vector2 getBulletStartPos() {
+        tmp.set(tankGun.getOriginX(), tankGun.getOriginY());
+        tmp = tankGun.localToStageCoordinates(tmp);
+
+        return tmp;
+    }
+
+    public Vector2 getPower() {
+        return power;
+    }
+
+    public void setPower(float powerX, float powerY) {
+        power.set(powerX, powerY);
     }
 
     public boolean isActive() {
@@ -86,8 +97,8 @@ public class Tank extends Group {
     @Override
     public void act(float delta) {
         super.act(delta);
-        float gunAngleDraw = gunAngle;
-        tankGun.setRotation(gunAngleDraw);
+
+        tankGun.setRotation((float) Math.toDegrees(Math.atan2(power.y, power.x)));
     }
 
     @Override
@@ -134,7 +145,5 @@ public class Tank extends Group {
 
             }
         }
-
-
     }
 }

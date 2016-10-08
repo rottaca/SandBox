@@ -2,6 +2,7 @@ package com.rottaca.sandbox.ctrl;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -23,21 +24,27 @@ public class GameController extends Stage {
     GameScreen gameScreen = null;
 
     public final static float GRAVITATION = -30f;
-    final static int HUMAN_TANK_ID = 0;           // Tank 0 is player
+    public final static int HUMAN_TANK_ID = 0;           // Tank 0 is player
+    public final static int BULLET_DAMAGE = 400;
 
     boolean isRunning;
     boolean levelLoaded;
     boolean gameFinished;
     boolean updateRendering;
+    boolean roundFinished;
 
     Integer levelNr;
     Level level;
     int activeTankId;
     boolean playerLost;
 
+    private float maxWind;
+    private float wind;
+
     HashMap<Integer, FieldConfig> fieldConfigHashMap;
 
     Sound explosionSound;
+    Sound tankFiringSound;
     ArrayList<Bullet> bullets;
 
     Image backgroundImg;
@@ -49,21 +56,27 @@ public class GameController extends Stage {
 
     TankAI tankAI;
 
+    Rectangle tmpRect = new Rectangle();
+    Rectangle tmpRect2 = new Rectangle();
 
     public GameController(GameScreen gameScreen, Viewport vp) {
         super(vp);
         this.gameScreen = gameScreen;
-        this.levelNr = -1;
-        this.isRunning = false;
-        this.levelLoaded = false;
-        this.updateRendering = false;
-        this.bullets = new ArrayList<Bullet>();
-        this.gameFinished = false;
-        this.playerLost = false;
+        levelNr = -1;
+        isRunning = false;
+        levelLoaded = false;
+        updateRendering = false;
+        bullets = new ArrayList<Bullet>();
+        gameFinished = false;
+        playerLost = false;
+        wind = 0;
+        maxWind = 10;
+        roundFinished = false;
 
         // Load field config synced... this shouldn't take long
         fieldConfigHashMap = ConfigLoader.loadFieldConfig("fieldConfig.json");
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("BombSound.mp3"));
+        tankFiringSound = Gdx.audio.newSound(Gdx.files.internal("TankFiring.mp3"));
         backgroundImg = new Image(SandBox.getTexture(SandBox.TEXTURE_HORIZON));
 
         // Prepare stage
@@ -72,6 +85,7 @@ public class GameController extends Stage {
         addActor(gameFieldGroup);
         addActor(bulletGroup);
         addActor(tankGroup);
+
 
         // Add background
         backgroundGroup.addActor(backgroundImg);
@@ -115,28 +129,35 @@ public class GameController extends Stage {
         for (int y = 0; y < chunks.length; y++) {
             for (int x = 0; x < chunks[0].length; x++) {
                 gameFieldGroup.addActor(chunks[y][x]);
+                //chunks[y][x].setDebug(true);
             }
         }
 
         // Add tanks
         for (Tank t : level.tanks) {
             tankGroup.addActor(t);
+            //t.setDebug(true,true);
         }
+
     }
 
-    public void setCurrentTankParameters(float gunAngle, float power) {
+    public void setPlayerTankParameters(float gunAngle, float power) {
 
-        Tank t = level.tanks.get(activeTankId);
+        Tank t = level.tanks.get(HUMAN_TANK_ID);
 
-        t.gunAngle = gunAngle;
-        t.power = power;
+        float speedX = (float) Math.cos(Math.toRadians(gunAngle));
+        float speedY = (float) Math.sin(Math.toRadians(gunAngle));
+        t.setPower(speedX * power, speedY * power);
     }
 
     public void act(float delta) {
         super.act(delta);
 
         level.gameGrid.updateGrid();
-        updateBullets(delta);
+
+        if (!updateBullets(delta) && roundFinished)
+            nextPlayer();
+
         checkTanks(delta);
     }
 
@@ -161,7 +182,7 @@ public class GameController extends Stage {
                     removedBullets.add(b);
                     continue;
                 }
-                    // TODO Synchronize ?
+
                 // Hit ground ?
                 if (x < getGameFieldWidth() && y < getGameFieldHeight() && level.gameGrid.getField(y, x) >= 0) {
                     // Explode on gamefield
@@ -172,26 +193,26 @@ public class GameController extends Stage {
                         explosionSound.play();
 
                     // Hit tank indirect ? TODO Check
-                    for (int idx = 0; idx < level.tanks.size(); idx++) {
-                        // Tanks can't hit themselves
-                        if (b.tankId == idx || !level.tanks.get(idx).isAlive())
-                            continue;
-
-                        Tank t = level.tanks.get(idx);
-
-
-                        float dx = t.getCenterPos().x - b.getCenterPos().x;
-                        float dy = t.getCenterPos().y - b.getCenterPos().y;
-                        float dist2 = dx * dx + dy * dy;
-
-                        // TODO Check with rectangle intersect
-                        if (dist2 < 30 * 30) {
-                            t.health -= b.damage / dist2;
-                            removedBullets.add(b);
-
-                            gameScreen.queueMessage("Player " + (b.tankId + 1) + " hit Player " + (idx + 1), 1000);
-                        }
-                    }
+//                    for (int idx = 0; idx < level.tanks.size(); idx++) {
+//                        // Tanks can't hit themselves
+//                        if (b.tankId == idx || !level.tanks.get(idx).isAlive())
+//                            continue;
+//
+//                        Tank t = level.tanks.get(idx);
+//
+//
+//                        float dx = t.getCenterPos().x - b.getCenterPos().x;
+//                        float dy = t.getCenterPos().y - b.getCenterPos().y;
+//                        float dist2 = dx * dx + dy * dy;
+//
+//                        // TODO Check with rectangle intersect
+//                        if (dist2 < 30 * 30) {
+//                            t.health -= b.damage / dist2;
+//                            removedBullets.add(b);
+//
+//                            gameScreen.queueMessage("Player " + (b.tankId + 1) + " hit Player " + (idx + 1), 1000);
+//                        }
+//                    }
                 }
                 // Tank hit direct ?
                 for (int idx = 0; idx < level.tanks.size(); idx++) {
@@ -201,12 +222,12 @@ public class GameController extends Stage {
 
                     Tank t = level.tanks.get(idx);
 
-                    float dx = t.getCenterPos().x - b.getCenterPos().x;
-                    float dy = t.getCenterPos().y - b.getCenterPos().y;
-                    float dist2 = dx * dx + dy * dy;
+                    tmpRect.setPosition(t.getX(), t.getY());
+                    tmpRect.setSize(t.getWidth(), t.getHeight());
+                    tmpRect2.setPosition(b.getX(), b.getY());
+                    tmpRect2.setSize(b.getWidth(), b.getHeight());
 
-                    // TODO Check with rectangle intersect
-                    if (dist2 < 25 * 25) {
+                    if (tmpRect.overlaps(tmpRect2)) {
                         t.health -= b.damage;
                         removedBullets.add(b);
 
@@ -266,18 +287,21 @@ public class GameController extends Stage {
     }
 
     public void shoot(float speedY, float speedX) {
-        if (level != null) {
+        if (level != null && !roundFinished) {
+
             synchronized (bullets) {
                 Bullet b = new Bullet(activeTankId,
-                        level.tanks.get(activeTankId).getCenterPos().x,
-                        level.tanks.get(activeTankId).getCenterPos().y,
-                        400,
+                        level.tanks.get(activeTankId).getBulletStartPos().x,
+                        level.tanks.get(activeTankId).getBulletStartPos().y,
+                        BULLET_DAMAGE,
                         speedX, speedY,
-                        0, GRAVITATION);
+                        wind, GRAVITATION);
                 bullets.add(b);
                 bulletGroup.addActor(b);
+                //b.setDebug(true);
+                tankFiringSound.play();
             }
-            nextPlayer();
+            roundFinished = true;
         }
     }
 
@@ -305,7 +329,8 @@ public class GameController extends Stage {
     }
 
     public void nextPlayer() {
-        level.tanks.get(activeTankId).setActive(false);
+        Tank t = level.tanks.get(activeTankId);
+        t.setActive(false);
 
         // Skip dead tanks
         // TODO Could cause dead lock ?
@@ -315,22 +340,27 @@ public class GameController extends Stage {
                 activeTankId = 0;
         } while (!level.tanks.get(activeTankId).isAlive());
 
-        level.tanks.get(activeTankId).setActive(true);
+        t = level.tanks.get(activeTankId);
+        t.setActive(true);
 
+        //wind = (float) (-maxWind + 2*maxWind*Math.random());
 
         // Human player or bot ?
+        roundFinished = false;
         if (activeTankId == HUMAN_TANK_ID) {
-            gameScreen.queueMessage("Player " + (activeTankId + 1) + ", your turn!", 1500);
+            gameScreen.playersTurn(true);
+            gameScreen.queueMessage("Players turn!", 1500);
         } else {
+            gameScreen.playersTurn(false);
+            gameScreen.queueMessage("Bots turn!", 1500);
             // Setup tank parameters
-            tankAI.prepareTank(level.gameGrid, level.tanks, level.tanks.get(activeTankId), level.tanks.get(0));
+            tankAI.prepareTank(level.gameGrid,
+                    level.tanks,
+                    t, level.tanks.get(0),
+                    GRAVITATION, wind);
+
             // Shoot
-            float speedX = (float) Math.cos(Math.toRadians(level.tanks.get(activeTankId).gunAngle));
-            float speedY = (float) Math.sin(Math.toRadians(level.tanks.get(activeTankId).gunAngle));
-            float power = level.tanks.get(activeTankId).power;
-
-            shoot(speedY * power, speedX * power);
-
+            shoot(t.getPower().y, t.getPower().x);
         }
     }
 }

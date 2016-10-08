@@ -100,7 +100,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         loadingLabel = new Label("Loading Level...", SandBox.skin, "defaultBlack");
         statusLabel = new Label("Player 1", SandBox.skin, "defaultBlack");
         angleSlider = new Slider(-20, 200, 0.1f, true, SandBox.skin, "default-vertical");
-        angleSlider.setValue(10);
+        angleSlider.setValue(0);
         powerSlider = new Slider(40, 150, 0.01f, true, SandBox.skin, "default-vertical");
         powerSlider.setValue(100);
 
@@ -132,14 +132,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
                     float speedY = (float) Math.sin(Math.toRadians(angleSlider.getValue()));
                     float power = powerSlider.getValue();
 
-                    if (!gameController.getTanks().get(gameController.getActiveTankId()).lookingRight)
-                        speedX = -speedX;
-
                     gameController.shoot(speedY * power, speedX * power);
-
-                    angleSlider.setValue(gameController.getTanks().get(gameController.getActiveTankId()).gunAngle);
-                    powerSlider.setValue(gameController.getTanks().get(gameController.getActiveTankId()).power);
-
+                    playersTurn(false);
                 }
             }
         });
@@ -160,7 +154,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
                     case 3:
                         sandBox.goToScreen(SandBox.ScreenName.MAIN);
                         break;
-
                 }
             }
         }.button("Menu ", 1).button("Next", 2).button("Retry", 3);
@@ -186,7 +179,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (gameController != null && gameController.isLevelLoaded()) {
-            gameController.setCurrentTankParameters(angleSlider.getValue(), powerSlider.getValue());
+            gameController.setPlayerTankParameters(angleSlider.getValue(), powerSlider.getValue());
             gameController.act(delta);
             gameController.getViewport().apply();
             gameController.draw();
@@ -202,7 +195,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     }
 
     public void queueMessage(String msg, long duration) {
-        clearMessageQueue();
+        //clearMessageQueue();
         messageAnimator.addMessage(msg, duration);
     }
 
@@ -225,6 +218,19 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
             finishedDialog.getTitleLabel().setText(gameController.getPlayerLost() ? "Level failed" : "Level cleared");
             finishedDialog.show(uiStage);
             dialogVisible = true;
+        }
+    }
+
+    public void playersTurn(boolean player) {
+        if (player) {
+            buttonShoot.setDisabled(false);
+            angleSlider.setDisabled(false);
+            powerSlider.setDisabled(false);
+
+        } else {
+            buttonShoot.setDisabled(true);
+            angleSlider.setDisabled(true);
+            powerSlider.setDisabled(true);
         }
     }
 

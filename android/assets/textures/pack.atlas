@@ -34,14 +34,14 @@ MenuBackground
   index: -1
 TankBody
   rotate: false
-  xy: 604, 469
-  size: 50, 40
-  orig: 50, 40
+  xy: 604, 481
+  size: 50, 28
+  orig: 50, 28
   offset: 0, 0
   index: -1
 TankGun
   rotate: false
-  xy: 604, 460
+  xy: 604, 472
   size: 19, 7
   orig: 19, 7
   offset: 0, 0
