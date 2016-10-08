@@ -17,7 +17,11 @@ import com.rottaca.sandbox.gui.GameScreen;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.removeActor;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateBy;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 
 public class GameController extends Stage {
 
@@ -38,8 +42,8 @@ public class GameController extends Stage {
     int activeTankId;
     boolean playerLost;
 
-    private float maxWind;
-    private float wind;
+    private int maxWind;
+    private int wind;
 
     HashMap<Integer, FieldConfig> fieldConfigHashMap;
 
@@ -148,6 +152,7 @@ public class GameController extends Stage {
         float speedX = (float) Math.cos(Math.toRadians(gunAngle));
         float speedY = (float) Math.sin(Math.toRadians(gunAngle));
         t.setPower(speedX * power, speedY * power);
+        t.getTankGun().setRotation((float) Math.toDegrees(Math.atan2(t.getPower().y, t.getPower().x)));
     }
 
     public void act(float delta) {
@@ -305,6 +310,10 @@ public class GameController extends Stage {
         }
     }
 
+    public int getWind() {
+        return wind;
+    }
+
     public boolean getPlayerLost() {
         return playerLost;
     }
@@ -343,13 +352,13 @@ public class GameController extends Stage {
         t = level.tanks.get(activeTankId);
         t.setActive(true);
 
-        //wind = (float) (-maxWind + 2*maxWind*Math.random());
+        wind = (int) Math.round(-maxWind + 2 * maxWind * Math.random());
 
         // Human player or bot ?
         roundFinished = false;
         if (activeTankId == HUMAN_TANK_ID) {
             gameScreen.playersTurn(true);
-            gameScreen.queueMessage("Players turn!", 1500);
+            gameScreen.queueMessage("Your turn!", 1500);
         } else {
             gameScreen.playersTurn(false);
             gameScreen.queueMessage("Bots turn!", 1500);
@@ -360,7 +369,18 @@ public class GameController extends Stage {
                     GRAVITATION, wind);
 
             // Shoot
-            shoot(t.getPower().y, t.getPower().x);
+            final Tank finalT = t;
+            Runnable run = new Runnable() {
+                @Override
+                public void run() {
+                    shoot(finalT.getPower().y, finalT.getPower().x);
+                }
+            };
+
+            float angle = (float) Math.toDegrees(Math.atan2(t.getPower().y, t.getPower().x));
+            angle -= t.getTankGun().getRotation();
+
+            t.getTankGun().addAction(sequence(rotateBy(angle, 1), delay(0.5f), run(run)));
         }
     }
 }

@@ -25,6 +25,9 @@ import com.rottaca.sandbox.ctrl.MessageAnimator;
 import com.rottaca.sandbox.ctrl.SandBox;
 import com.rottaca.sandbox.data.Tank;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+
 /**
  * Created by Andreas on 04.09.2016.
  */
@@ -51,6 +54,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private Slider angleSlider;
     private Slider powerSlider;
     private Label statusLabel;
+    private Label windLabel;
     private Label loadingLabel;
     // Layout
     private Table tableGameOverlay;
@@ -99,6 +103,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         buttonShoot = new TextButton("Shoot", SandBox.skin, "default");
         loadingLabel = new Label("Loading Level...", SandBox.skin, "defaultBlack");
         statusLabel = new Label("Player 1", SandBox.skin, "defaultBlack");
+        windLabel = new Label("Wind: 0", SandBox.skin, "defaultBlack");
         angleSlider = new Slider(-20, 200, 0.1f, true, SandBox.skin, "default-vertical");
         angleSlider.setValue(0);
         powerSlider = new Slider(40, 150, 0.01f, true, SandBox.skin, "default-vertical");
@@ -106,11 +111,11 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 
         // Define layout
         tableGameOverlay.add(angleSlider).pad(1).left().expandY();
-        tableGameOverlay.add(statusLabel).pad(1).center().expand();
+        tableGameOverlay.add(windLabel).pad(1).center().top();
         tableGameOverlay.add(powerSlider).pad(1).right().expandY();
         tableGameOverlay.row();
         tableGameOverlay.add(buttonBack).pad(1);
-        tableGameOverlay.add(new Label("", SandBox.skin, "defaultBlack")).pad(1);
+        tableGameOverlay.add(statusLabel).pad(1).center().expand();
         tableGameOverlay.add(buttonShoot).pad(1);
 
         tableLoadingOverlay.add(loadingLabel).center();
@@ -200,37 +205,41 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     }
 
     private void updateGui() {
-        if (gameController != null && gameController.isRunning()) {
-            String msg = messageAnimator.getMessageAndUpdate();
-            if (msg != null) {
-                statusLabel.setVisible(true);
-                statusLabel.setText(msg);
+        if (gameController != null) {
+            if (gameController.isRunning()) {
+                String msg = messageAnimator.getMessageAndUpdate();
+                if (msg != null) {
+                    statusLabel.setVisible(true);
+                    statusLabel.setText(msg);
+                } else {
+                    statusLabel.setVisible(false);
+                }
+                windLabel.setText("Wind: " + gameController.getWind());
+
+
             } else {
                 statusLabel.setVisible(false);
             }
 
-        } else {
-            statusLabel.setVisible(false);
-        }
-
-        if (gameController != null && gameController.isGameFinished() && !dialogVisible) {
-            finishedDialog.text(gameController.getPlayerLost() ? "You lost the level! Retry?" : "You won!");
-            finishedDialog.getTitleLabel().setText(gameController.getPlayerLost() ? "Level failed" : "Level cleared");
-            finishedDialog.show(uiStage);
-            dialogVisible = true;
+            if (gameController.isGameFinished() && !dialogVisible) {
+                finishedDialog.text(gameController.getPlayerLost() ? "You lost the level! Retry?" : "You won!");
+                finishedDialog.getTitleLabel().setText(gameController.getPlayerLost() ? "Level failed" : "Level cleared");
+                finishedDialog.show(uiStage);
+                dialogVisible = true;
+            }
         }
     }
 
     public void playersTurn(boolean player) {
         if (player) {
-            buttonShoot.setDisabled(false);
-            angleSlider.setDisabled(false);
-            powerSlider.setDisabled(false);
+            buttonShoot.addAction(fadeIn(0.3f));
+            angleSlider.addAction(fadeIn(0.3f));
+            powerSlider.addAction(fadeIn(0.3f));
 
         } else {
-            buttonShoot.setDisabled(true);
-            angleSlider.setDisabled(true);
-            powerSlider.setDisabled(true);
+            buttonShoot.addAction(fadeOut(0.3f));
+            angleSlider.addAction(fadeOut(0.3f));
+            powerSlider.addAction(fadeOut(0.3f));
         }
     }
 

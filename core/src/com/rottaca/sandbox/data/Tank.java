@@ -3,6 +3,7 @@ package com.rottaca.sandbox.data;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.JsonValue;
@@ -77,6 +78,9 @@ public class Tank extends Group {
         power.set(powerX, powerY);
     }
 
+    public Actor getTankGun() {
+        return tankGun;
+    }
     public boolean isActive() {
         return isActive;
     }
@@ -98,7 +102,6 @@ public class Tank extends Group {
     public void act(float delta) {
         super.act(delta);
 
-        tankGun.setRotation((float) Math.toDegrees(Math.atan2(power.y, power.x)));
     }
 
     @Override
