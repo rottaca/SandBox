@@ -1,0 +1,41 @@
+
+pack.png
+size: 128,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+bulletExplode1
+  rotate: false
+  xy: 2, 2
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+bulletExplode2
+  rotate: false
+  xy: 24, 2
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+bulletExplode3
+  rotate: false
+  xy: 46, 2
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+bulletExplode4
+  rotate: false
+  xy: 68, 2
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+bulletExplode5
+  rotate: false
+  xy: 90, 2
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
