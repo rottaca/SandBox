@@ -243,10 +243,11 @@ public class GameController extends Stage {
             for (int i = 0; i < removedBullets.size(); i++) {
                 Bullet b = removedBullets.get(i);
 
-                if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
-                    explosionSound.play();
-                if (b.getExploding())
+                if (b.getExploding()) {
+                    if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_FX_ENABLED))
+                        explosionSound.play();
                     b.addAction(sequence(delay(0.3f), removeActor()));
+                }
                 else
                     b.addAction(removeActor());
                 bullets.remove(b);
