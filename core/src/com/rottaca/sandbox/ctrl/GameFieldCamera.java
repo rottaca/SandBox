@@ -53,7 +53,7 @@ public class GameFieldCamera extends OrthographicCamera {
         tmp.set(newCamPos);
         tmp.sub(currCamPos);
 
-        Gdx.app.log("MyTag", " new: " + newCamPos + "curr: " + currCamPos);
+        //Gdx.app.log("MyTag", " new: " + newCamPos + "curr: " + currCamPos);
 
         if (tmp.len() < 0.5f) {
             currCamPos.set(newCamPos);

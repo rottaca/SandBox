@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.rottaca.sandbox.ctrl.GameController;
 import com.rottaca.sandbox.ctrl.GameFieldCamera;
+import com.rottaca.sandbox.ctrl.GameRenderer;
 import com.rottaca.sandbox.ctrl.InputHandler;
 import com.rottaca.sandbox.ctrl.MessageAnimator;
 import com.rottaca.sandbox.ctrl.SandBox;
@@ -36,6 +37,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private SandBox sandBox;
     private ExtendViewport uiViewport;
     private Stage uiStage;
+    private GameRenderer gameRenderer;
 
     private GameFieldCamera gameFieldCamera;
     private ExtendViewport gameViewPort;
@@ -161,6 +163,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         // Start game
         gameViewPort = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         gameController = new GameController(this, gameViewPort);
+        gameRenderer = new GameRenderer(gameController);
 
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(uiStage);
@@ -184,7 +187,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
             gameController.setPlayerTankParameters(angleSlider.getValue(), powerSlider.getValue());
             gameController.act(delta);
             gameController.getViewport().apply();
-            gameController.draw();
+            gameRenderer.renderGame();
+
+            //gameController.draw();
         }
 
         // Update overlay data

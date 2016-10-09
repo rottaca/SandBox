@@ -386,4 +386,27 @@ public class GameController extends Stage {
         }
         gameScreen.lookAtTank(t);
     }
+
+    @Override
+    public void draw() {
+        super.draw();
+
+
+    }
+
+    public Group getTankGroup() {
+        return tankGroup;
+    }
+
+    public Group getBulletGroup() {
+        return bulletGroup;
+    }
+
+    public Group getBackgroundGroup() {
+        return backgroundGroup;
+    }
+
+    public Group getGameFieldGroup() {
+        return gameFieldGroup;
+    }
 }
