@@ -12,6 +12,9 @@ public class DesktopLauncher {
         TexturePacker.process("textures/bulletExplosion", "textures/bulletExplosion", "pack");
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.width = 1280;
+        config.height = 768;
+        config.resizable = false;
         new LwjglApplication(new SandBox(), config);
     }
 }

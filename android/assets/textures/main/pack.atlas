@@ -6,49 +6,49 @@ filter: Nearest,Nearest
 repeat: none
 Bullet
   rotate: false
-  xy: 2, 2
+  xy: 604, 192
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
 BulletLine
   rotate: false
-  xy: 656, 505
+  xy: 54, 35
   size: 20, 4
   orig: 20, 4
   offset: 0, 0
   index: -1
 Horizon
   rotate: false
-  xy: 2, 8
+  xy: 604, 198
   size: 5, 199
   orig: 5, 199
   offset: 0, 0
   index: -1
 MenuBackground
   rotate: false
-  xy: 2, 209
-  size: 600, 300
-  orig: 600, 300
+  xy: 2, 41
+  size: 600, 356
+  orig: 600, 356
   offset: 0, 0
   index: -1
 TankBody
   rotate: false
-  xy: 604, 481
+  xy: 2, 11
   size: 50, 28
   orig: 50, 28
   offset: 0, 0
   index: -1
 TankGun
   rotate: false
-  xy: 604, 472
+  xy: 2, 2
   size: 19, 7
   orig: 19, 7
   offset: 0, 0
   index: -1
 White
   rotate: false
-  xy: 9, 191
+  xy: 611, 381
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

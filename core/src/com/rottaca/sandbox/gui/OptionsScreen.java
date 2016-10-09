@@ -3,10 +3,9 @@ package com.rottaca.sandbox.gui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -27,7 +26,7 @@ public class OptionsScreen extends ScreenAdapter {
     private SandBox sandBox;
 
     private Stage stage;
-    private TextureRegion menuBackgroundTexture;
+    private Image menuBackground;
 
     public OptionsScreen(SandBox sandBox) {
         this.sandBox = sandBox;
@@ -37,8 +36,13 @@ public class OptionsScreen extends ScreenAdapter {
 
     public void create() {
         stage = new Stage(new ExtendViewport(300, 200));
-
         Gdx.input.setInputProcessor(stage);
+
+        menuBackground = new Image(SandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND));
+        float imgAspect = menuBackground.getWidth() / menuBackground.getHeight();
+        float x = (stage.getWidth() - stage.getHeight() * imgAspect) / 2;
+        menuBackground.setBounds(x, 0, stage.getHeight() * imgAspect, stage.getHeight() + 1);
+        stage.addActor(menuBackground);
 
         table = new Table();
         table.setFillParent(true);
@@ -97,8 +101,6 @@ public class OptionsScreen extends ScreenAdapter {
                     buttonToggleSoundEffects.setText("Effects: OFF");
             }
         });
-
-        menuBackgroundTexture = sandBox.getTexture(SandBox.TEXTURE_MENUBACKGROUND);
     }
 
     @Override
@@ -107,19 +109,9 @@ public class OptionsScreen extends ScreenAdapter {
         gl.glClearColor(1, 1, 1, 1);
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        SpriteBatch batch = sandBox.getBatch();
-        batch.disableBlending();
-
-        batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
-        batch.begin();
-        batch.draw(menuBackgroundTexture, 0, 0,
-                stage.getWidth(), stage.getHeight());
-        batch.end();
-
-        batch.begin();
         stage.act(delta);
         stage.draw();
-        batch.end();
+
     }
 
     @Override

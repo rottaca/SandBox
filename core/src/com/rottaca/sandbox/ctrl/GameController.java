@@ -383,5 +383,6 @@ public class GameController extends Stage {
 
             t.getTankGun().addAction(sequence(rotateBy(angle, 1), delay(0.5f), run(run)));
         }
+        gameScreen.lookAtTank(t);
     }
 }

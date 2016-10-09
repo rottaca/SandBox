@@ -8,7 +8,6 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -41,10 +40,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private GameFieldCamera gameFieldCamera;
     private ExtendViewport gameViewPort;
 
-    private Vector2 touchPosDrag = new Vector2();
-    private Vector2 cameraPos = new Vector2();
-    private boolean draggingMap = false;
-    private boolean draggingGun = false;
 
     private Vector2 touchDeltaAim = new Vector2();
 
@@ -171,6 +166,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         multiplexer.addProcessor(uiStage);
         multiplexer.addProcessor(new GestureDetector(inputHandler));
         multiplexer.addProcessor(gameController);
+        multiplexer.addProcessor(this);
         Gdx.input.setInputProcessor(multiplexer);
 
         gameController.loadLevel(1);
@@ -184,6 +180,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (gameController != null && gameController.isLevelLoaded()) {
+            gameFieldCamera.act(delta); // Animate camera movement and scaling
             gameController.setPlayerTankParameters(angleSlider.getValue(), powerSlider.getValue());
             gameController.act(delta);
             gameController.getViewport().apply();
@@ -202,6 +199,11 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     public void queueMessage(String msg, long duration) {
         //clearMessageQueue();
         messageAnimator.addMessage(msg, duration);
+    }
+
+    public void lookAtTank(Tank t) {
+        gameFieldCamera.setCameraPosX(t.getCenterPos().x - gameFieldCamera.getImageSize().x / 2, true);
+        gameFieldCamera.setCameraPosY(t.getCenterPos().y - gameFieldCamera.getImageSize().y / 2, true);
     }
 
     private void updateGui() {
@@ -260,13 +262,12 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     }
 
     public void draggedGameField(float dX, float dY) {
-        cameraPos.x = gameFieldCamera.setCameraPosX(cameraPos.x + dX);
-        cameraPos.y = gameFieldCamera.setCameraPosY(cameraPos.y + dY);
-        Gdx.app.debug("MyTag", "dragged cam: " + cameraPos.x + "x" + cameraPos.y);
+        gameFieldCamera.setCameraPosX(gameFieldCamera.getCurrCamPos().x + dX, false);
+        gameFieldCamera.setCameraPosY(gameFieldCamera.getCurrCamPos().y + dY, false);
     }
 
     public void zoomedGameField(float dZoom) {
-        gameFieldCamera.setCameraZoom(gameFieldCamera.getZoomFactor() + dZoom);
+        gameFieldCamera.setCameraZoom(gameFieldCamera.getCurrZoomFactor() + dZoom, false);
     }
 
     public void aimTank(float dX, float dY) {
@@ -301,83 +302,85 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (button != Input.Buttons.LEFT || pointer > 0) return false;
-        draggingMap = false;
-        draggingGun = false;
+//        draggingMap = false;
+//        draggingGun = false;
+//
+//        touchPosDrag.x = screenX;
+//        touchPosDrag.y = screenY;
 
-        touchPosDrag.x = screenX;
-        touchPosDrag.y = screenY;
+        gameFieldCamera.stopAnimation();
+
+//        Vector3 tpWorld = new Vector3();
+//        gameFieldCamera.unproject(tpWorld.set(screenX, screenY, 0));
+
+//        int tankId = gameController.getActiveTankId();
+//        Tank t = gameController.getLevel().tanks.get(tankId);
+//        float dist = new Vector2(t.getX(), t.getY()).dst2(tpWorld.x, tpWorld.y);
+//
+//        if (dist < 20 * 20) {
+//            draggingGun = true;
+//        }
 
 
-        Vector3 tpWorld = new Vector3();
-        gameFieldCamera.unproject(tpWorld.set(screenX, screenY, 0));
-
-        int tankId = gameController.getActiveTankId();
-        Tank t = gameController.getLevel().tanks.get(tankId);
-        float dist = new Vector2(t.getX(), t.getY()).dst2(tpWorld.x, tpWorld.y);
-
-        if (dist < 20 * 20) {
-            draggingGun = true;
-        }
-
-        return true;
+        return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if (draggingMap) {
-
-        } else {
-            if (gameFieldCamera != null) {
-                Vector3 tpWorld = new Vector3();
-                gameFieldCamera.unproject(tpWorld.set(screenX, screenY, 0));
-                Gdx.app.debug("MyTag", "Touch at GameField: " + tpWorld.toString());
-
-                if (gameController.isRunning() && draggingGun) {
-
-                    //gameController.clickedOnGameField((int) tpGameFieldCoord.y, (int) tpGameFieldCoord.x);
-                    // TODO Use coordinates that do not depend on the screen resolution
-                    // FIX: Use project function to project tank position in screen space
-
-                    int tankId = gameController.getActiveTankId();
-                    Tank t = gameController.getLevel().tanks.get(tankId);
-                    Vector2 delta = new Vector2(t.getX(), t.getY()).sub(tpWorld.x, tpWorld.y);
-
-                    gameController.shoot(
-                            delta.y * 0.04f,
-                            delta.x * 0.04f);
-                }
-            }
-        }
-
-        draggingGun = false;
-        draggingMap = false;
+//        if (draggingMap) {
+//
+//        } else {
+//            if (gameFieldCamera != null) {
+//                Vector3 tpWorld = new Vector3();
+//                gameFieldCamera.unproject(tpWorld.set(screenX, screenY, 0));
+//                Gdx.app.debug("MyTag", "Touch at GameField: " + tpWorld.toString());
+//
+//                if (gameController.isRunning() && draggingGun) {
+//
+//                    //gameController.clickedOnGameField((int) tpGameFieldCoord.y, (int) tpGameFieldCoord.x);
+//                    // TODO Use coordinates that do not depend on the screen resolution
+//                    // FIX: Use project function to project tank position in screen space
+//
+//                    int tankId = gameController.getActiveTankId();
+//                    Tank t = gameController.getLevel().tanks.get(tankId);
+//                    Vector2 delta = new Vector2(t.getX(), t.getY()).sub(tpWorld.x, tpWorld.y);
+//
+//                    gameController.shoot(
+//                            delta.y * 0.04f,
+//                            delta.x * 0.04f);
+//                }
+//            }
+//        }
+//
+//        draggingGun = false;
+//        draggingMap = false;
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
 
-        Vector2 delta = new Vector2();
-        delta.x = touchPosDrag.x - screenX;
-        delta.y = touchPosDrag.y - screenY;
-
-        Gdx.app.debug("MyTag", "Touch dragged at: " + screenX + " " + screenY);
-
-
-        if (draggingGun) {
-
-        } else if (delta.x * delta.x + delta.y * delta.y > 2) {
-            draggingMap = true;
-        }
-
-        if (draggingMap) {
-            if (gameFieldCamera != null) {
-                cameraPos.x = gameFieldCamera.setCameraPosX(cameraPos.x + delta.x);
-                cameraPos.y = gameFieldCamera.setCameraPosY(cameraPos.y + 0.2f * delta.y);
-            }
-        }
-        touchPosDrag.x = screenX;
-        touchPosDrag.y = screenY;
+//        Vector2 delta = new Vector2();
+//        delta.x = touchPosDrag.x - screenX;
+//        delta.y = touchPosDrag.y - screenY;
+//
+//        Gdx.app.debug("MyTag", "Touch dragged at: " + screenX + " " + screenY);
+//
+//
+//        if (draggingGun) {
+//
+//        } else if (delta.x * delta.x + delta.y * delta.y > 2) {
+//            draggingMap = true;
+//        }
+//
+//        if (draggingMap) {
+//            if (gameFieldCamera != null) {
+//                cameraPos.x = gameFieldCamera.setCameraPosX(cameraPos.x + delta.x,false);
+//                cameraPos.y = gameFieldCamera.setCameraPosY(cameraPos.y + 0.2f * delta.y,false);
+//            }
+//        }
+//        touchPosDrag.x = screenX;
+//        touchPosDrag.y = screenY;
         return false;
     }
 
