@@ -250,11 +250,17 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
             buttonShoot.addAction(fadeIn(0.3f));
             angleSlider.addAction(fadeIn(0.3f));
             powerSlider.addAction(fadeIn(0.3f));
+            buttonShoot.setDisabled(false);
+            angleSlider.setDisabled(false);
+            powerSlider.setDisabled(false);
 
         } else {
             buttonShoot.addAction(fadeOut(0.3f));
             angleSlider.addAction(fadeOut(0.3f));
             powerSlider.addAction(fadeOut(0.3f));
+            buttonShoot.setDisabled(true);
+            angleSlider.setDisabled(true);
+            powerSlider.setDisabled(true);
         }
     }
 

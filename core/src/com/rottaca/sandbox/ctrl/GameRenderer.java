@@ -29,7 +29,7 @@ public class GameRenderer {
 
     ShaderProgram postProcessingShaderGameField;
 
-    private boolean postProcessGameField = false;
+    private final boolean postProcessGameField = false;
 
     public GameRenderer(GameController gameController) {
 
@@ -40,11 +40,13 @@ public class GameRenderer {
         tankGroup = gameController.getTankGroup();
         gameFieldGroup = gameController.getGameFieldGroup();
 
-        postProcessingShaderGameField = new ShaderProgram(Gdx.files.internal("shaders/gameFieldVertexShader.vert"),
-                Gdx.files.internal("shaders/gameFieldFragmentShader.frag"));
+        if (postProcessGameField) {
+            postProcessingShaderGameField = new ShaderProgram(Gdx.files.internal("shaders/gameFieldVertexShader.vert"),
+                    Gdx.files.internal("shaders/gameFieldFragmentShader.frag"));
 
-        if (!postProcessingShaderGameField.isCompiled()) {
-            Gdx.app.error("MyTag", "Error while compiling shader: \n" + postProcessingShaderGameField.getLog());
+            if (!postProcessingShaderGameField.isCompiled()) {
+                Gdx.app.error("MyTag", "Error while compiling shader: \n" + postProcessingShaderGameField.getLog());
+            }
         }
     }
 
