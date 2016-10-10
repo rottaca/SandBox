@@ -44,6 +44,7 @@ public class ConfigLoader {
     public static final String PREF_SOUND_BG_ENABLED = "BackgroundMusicEnabled";
     public static final String PREF_SOUND_FX_ENABLED = "FXSoundEnabled";
 
+
     public static HashMap<Integer, FieldConfig> loadFieldConfig(String fileName) {
         FileHandle file = Gdx.files.internal(fileName);
         String mapConfigTxt = file.readString();

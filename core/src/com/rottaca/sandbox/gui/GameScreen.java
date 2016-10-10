@@ -68,6 +68,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private boolean dialogVisible;
     private Dialog finishedDialog;
 
+    private long frameNr = 0;
 
     public GameScreen(SandBox sandBox) {
         this.sandBox = sandBox;
@@ -182,6 +183,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         gl.glClearColor(1, 1, 1, 1);
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+
         if (gameController != null && gameController.isLevelLoaded()) {
             gameFieldCamera.act(delta); // Animate camera movement and scaling
             gameController.setPlayerTankParameters(angleSlider.getValue(), powerSlider.getValue());
@@ -198,6 +200,12 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         uiStage.act(delta);
         uiStage.getViewport().apply();
         uiStage.draw();
+
+        frameNr++;
+
+        if (frameNr % 30 == 0) {
+            Gdx.app.log("MyTag", "Framerate: " + Gdx.graphics.getFramesPerSecond());
+        }
 
     }
 

@@ -42,6 +42,10 @@ public class GameRenderer {
 
         postProcessingShaderGameField = new ShaderProgram(Gdx.files.internal("shaders/gameFieldVertexShader.vert"),
                 Gdx.files.internal("shaders/gameFieldFragmentShader.frag"));
+
+        if (!postProcessingShaderGameField.isCompiled()) {
+            Gdx.app.error("MyTag", "Error while compiling shader: \n" + postProcessingShaderGameField.getLog());
+        }
     }
 
 

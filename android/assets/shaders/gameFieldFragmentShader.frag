@@ -1,3 +1,5 @@
+#version 100
+
 #ifdef GL_ES
     precision mediump float;
 #endif
@@ -8,23 +10,47 @@ varying vec2 v_texCoords;
 uniform sampler2D u_texture;
 uniform mat4 u_projTrans;
 
+
 // @appas  noise function from stackoverflow.xom
 float snoise(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
+float edgeDetect(){
+    mat3 scharrX;
+    scharrX[0] = vec3( 3f,  0f, -3f);
+    scharrX[1] = vec3( 10f,  0f,-10f);
+    scharrX[2] = vec3( 3f, 0f , -3f);
+
+    mat3 scharrY;
+    scharrY[0] = vec3( 3, 10, 3);
+    scharrY[1] = vec3( 0,  0, 0);
+    scharrY[2] = vec3( -3,-10,-3);
+
+
+    float stretch = 0.001f;
+    float resX = 0.0f;
+    float resY = 0.0f;
+
+    for(int y=0;y<3;y++){
+        for(int x=0;x<3;x++){
+            vec2 offset = vec2(stretch*(float(x)-1.0f),stretch*(float(y)-1.0f));
+            vec4 col = texture2D(u_texture, v_texCoords+offset).rgba;
+            float gray = (col.r+col.g+col.b)/3.0f;
+            resX+=scharrX[x][y]*gray;
+            resY+=scharrY[x][y]*gray;
+        }
+    }
+
+    return sqrt(resX*resX+resY*resY);
+}
 
 void main() {
-        float stretch = 0.002f;
-        vec4 color1 = texture2D(u_texture, v_texCoords+vec2(stretch,stretch)).rgba;
-        vec4 color2 = texture2D(u_texture, v_texCoords+vec2(-stretch,stretch)).rgba;
-        vec4 color3 = texture2D(u_texture, v_texCoords+vec2(stretch,-stretch)).rgba;
-        vec4 color4 = texture2D(u_texture, v_texCoords+vec2(-stretch,-stretch)).rgba;
+        vec4 color = texture2D(u_texture, v_texCoords).rgba;
 
-        //if(color.r < 1.0f || color.g < 1.0f || color.b < 1.0f){
-        //    float n = (snoise(v_texCoords*0.05)*0.5) + 0.5;
-        //    color = color*vec4(n,n,n,1);
-        //}
-
-        gl_FragColor = (color1+color2+color3+color4)/4;
+        float edge = edgeDetect();
+        if(edge > 0.1f)
+            gl_FragColor = vec4(0,0,0,1.0);
+        else
+            gl_FragColor = color;
 }
