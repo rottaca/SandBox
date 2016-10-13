@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.rottaca.sandbox.gui.AboutScreen;
 import com.rottaca.sandbox.gui.GameScreen;
+import com.rottaca.sandbox.gui.LevelScreen;
 import com.rottaca.sandbox.gui.MainMenuScreen;
 import com.rottaca.sandbox.gui.OptionsScreen;
 
@@ -22,7 +23,7 @@ public class SandBox extends Game {
 
     // All screens in the game
     public enum ScreenName {
-        MAIN, GAME, OPTIONS, ABOUT
+        MAIN, GAME, OPTIONS, ABOUT, LEVELS
     }
 
     private Screen activeScreen = null;
@@ -40,6 +41,8 @@ public class SandBox extends Game {
     public static final String TEXTURE_HORIZON = "Horizon";
     public static final String TEXTURE_MENUBACKGROUND = "MenuBackground";
     public static final String TEXTURE_WHITE = "White";
+    public static final String TEXTURE_STAR_FILLED = "StarFilled";
+    public static final String TEXTURE_STAR_UNFILLED = "StarUnfilled";
 
     private static TextureAtlas bulletExplusionTextureAtlas;
 
@@ -95,14 +98,17 @@ public class SandBox extends Game {
         return batch;
     }
 
-
     public void goToScreen(ScreenName screenName) {
+        goToScreen(screenName, -1);
+    }
+
+    public void goToScreen(ScreenName screenName, Object param1) {
         if (activeScreen != null)
             activeScreen.dispose();
 
         switch (screenName) {
             case GAME:
-                activeScreen = new GameScreen(this);
+                activeScreen = new GameScreen(this, (Integer) param1);
                 break;
             case MAIN:
                 activeScreen = new MainMenuScreen(this);
@@ -112,6 +118,9 @@ public class SandBox extends Game {
                 break;
             case OPTIONS:
                 activeScreen = new OptionsScreen(this);
+                break;
+            case LEVELS:
+                activeScreen = new LevelScreen(this);
                 break;
             default:
                 break;
@@ -138,6 +147,8 @@ public class SandBox extends Game {
         textureRegionHashMap.put(TEXTURE_HORIZON, mainTextureAtlas.findRegion(TEXTURE_HORIZON));
         textureRegionHashMap.put(TEXTURE_MENUBACKGROUND, mainTextureAtlas.findRegion(TEXTURE_MENUBACKGROUND));
         textureRegionHashMap.put(TEXTURE_WHITE, mainTextureAtlas.findRegion(TEXTURE_WHITE));
+        textureRegionHashMap.put(TEXTURE_STAR_FILLED, mainTextureAtlas.findRegion(TEXTURE_STAR_FILLED));
+        textureRegionHashMap.put(TEXTURE_STAR_UNFILLED, mainTextureAtlas.findRegion(TEXTURE_STAR_UNFILLED));
 
         bulletExplusionTextureAtlas = new TextureAtlas(Gdx.files.internal("textures/bulletExplosion/pack.atlas"));
         bulletExplusionTextureAtlas.getRegions();

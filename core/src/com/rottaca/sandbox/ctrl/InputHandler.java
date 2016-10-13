@@ -1,6 +1,5 @@
 package com.rottaca.sandbox.ctrl;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.input.GestureDetector;
@@ -181,25 +180,25 @@ public class InputHandler implements GestureDetector.GestureListener, InputProce
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        Gdx.app.debug("MyTag", "tap");
+        //Gdx.app.debug("MyTag", "tap");
         return false;
     }
 
     @Override
     public boolean longPress(float x, float y) {
-        Gdx.app.debug("MyTag", "longPress");
+        //Gdx.app.debug("MyTag", "longPress");
         return false;
     }
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
-        Gdx.app.debug("MyTag", "fling");
+        //Gdx.app.debug("MyTag", "fling");
         return false;
     }
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-        Gdx.app.debug("MyTag", "pan");
+        //Gdx.app.debug("MyTag", "pan");
 
         if (!dataSet) return false;
 
@@ -230,26 +229,26 @@ public class InputHandler implements GestureDetector.GestureListener, InputProce
 
     @Override
     public boolean panStop(float x, float y, int pointer, int button) {
-        Gdx.app.debug("MyTag", "panStop");
+        //Gdx.app.debug("MyTag", "panStop");
         return false;
     }
 
     @Override
     public boolean zoom(float initialDistance, float distance) {
-        Gdx.app.debug("MyTag", "zoom");
+        //Gdx.app.debug("MyTag", "zoom");
         gameScreen.zoomedGameField((distance - initialDistance) * ZOOM_MULTIPLICATOR);
         return false;
     }
 
     @Override
     public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-        Gdx.app.debug("MyTag", "pinch");
+        //Gdx.app.debug("MyTag", "pinch");
         return false;
     }
 
     @Override
     public void pinchStop() {
-        Gdx.app.debug("MyTag", "pinchStop");
+        //Gdx.app.debug("MyTag", "pinchStop");
 
     }
 

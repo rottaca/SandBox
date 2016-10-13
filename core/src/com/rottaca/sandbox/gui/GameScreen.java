@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.rottaca.sandbox.ctrl.ConfigLoader;
 import com.rottaca.sandbox.ctrl.GameController;
 import com.rottaca.sandbox.ctrl.GameFieldCamera;
 import com.rottaca.sandbox.ctrl.GameRenderer;
@@ -69,9 +70,11 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
     private Dialog finishedDialog;
 
     private long frameNr = 0;
+    private int levelNr = 0;
 
-    public GameScreen(SandBox sandBox) {
+    public GameScreen(SandBox sandBox, int levelNr) {
         this.sandBox = sandBox;
+        this.levelNr = levelNr;
         create();
     }
 
@@ -173,7 +176,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
         multiplexer.addProcessor(this);
         Gdx.input.setInputProcessor(multiplexer);
 
-        gameController.loadLevel(1);
+        gameController.loadLevel(levelNr);
         levelLoaded();
     }
 
@@ -241,6 +244,12 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
                 finishedDialog.getTitleLabel().setText(gameController.getPlayerLost() ? "Level failed" : "Level cleared");
                 finishedDialog.show(uiStage);
                 dialogVisible = true;
+
+                // TODO Define level rating
+                int rating = gameController.getPlayerLost() ? 0 : 2;
+                ConfigLoader.prefs.putInteger(ConfigLoader.PREF_LEVEL_RES_PREFIX + levelNr + ConfigLoader.PREF_LEVEL_RES_RATING_SUFFIX,
+                        rating);
+                ConfigLoader.prefs.flush();
             }
         }
     }

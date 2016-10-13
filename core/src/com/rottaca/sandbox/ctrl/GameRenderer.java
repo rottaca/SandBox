@@ -29,7 +29,7 @@ public class GameRenderer {
 
     ShaderProgram postProcessingShaderGameField;
 
-    private final boolean postProcessGameField = false;
+    private final boolean postProcessGameField = true;
 
     public GameRenderer(GameController gameController) {
 

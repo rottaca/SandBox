@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.rottaca.sandbox.data.FieldConfig;
@@ -11,6 +12,7 @@ import com.rottaca.sandbox.data.GameGrid;
 import com.rottaca.sandbox.data.Level;
 import com.rottaca.sandbox.data.Tank;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -18,6 +20,10 @@ import java.util.HashMap;
  * Created by Andreas on 05.09.2016.
  */
 public class ConfigLoader {
+    // Map overview information
+    public static final String MAPLIST = "Maps";
+    public static final String MAPLIST_LEVEL_NR = "LevelNr";
+
     // Map information
     public static final String MAP_TAG_CONFIG = "MapConfig";
     public static final String MAP_TAG_NAME = "Name";
@@ -43,6 +49,8 @@ public class ConfigLoader {
     public static final Preferences prefs = Gdx.app.getPreferences("Preferences");
     public static final String PREF_SOUND_BG_ENABLED = "BackgroundMusicEnabled";
     public static final String PREF_SOUND_FX_ENABLED = "FXSoundEnabled";
+    public static final String PREF_LEVEL_RES_PREFIX = "Level";
+    public static final String PREF_LEVEL_RES_RATING_SUFFIX = "Rating";
 
 
     public static HashMap<Integer, FieldConfig> loadFieldConfig(String fileName) {
@@ -85,6 +93,25 @@ public class ConfigLoader {
         level.gameGrid = new GameGrid(mapPixmap, fieldConfigHashMap);
 
         return level;
+    }
+
+    public static ArrayList<LevelOverview> getLevelOverview() {
+        ArrayList<LevelOverview> levelOverviews = new ArrayList<LevelOverview>();
+
+        FileHandle file = Gdx.files.internal("maps/maps.json");
+        JsonValue root = new JsonReader().parse(file.readString());
+
+        // Load map overviews
+        JsonValue fieldArray = root.get(MAPLIST);
+        for (JsonValue jsonField : fieldArray.iterator()) {
+            LevelOverview lo = new LevelOverview();
+            lo.levelNr = jsonField.getInt(MAPLIST_LEVEL_NR);
+            lo.thumbnail = new Texture(Gdx.files.internal("maps/map" + lo.levelNr + "/thumbnail.png"));
+            lo.rating = prefs.getInteger(PREF_LEVEL_RES_PREFIX + lo.levelNr + PREF_LEVEL_RES_RATING_SUFFIX, -1);
+            levelOverviews.add(lo);
+        }
+
+        return levelOverviews;
     }
 
 }
