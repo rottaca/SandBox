@@ -12,6 +12,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.rottaca.sandbox.ctrl.SandBox;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+
 /**
  * Created by Andreas on 03.09.2016.
  */
@@ -52,6 +57,10 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonStart = new TextButton("Start", SandBox.skin, "default");
         buttonOptions = new TextButton("Options", SandBox.skin, "default");
         buttonAbout = new TextButton("About", SandBox.skin, "default");
+
+        buttonStart.addAction(sequence(fadeOut(0.0f), fadeIn(SandBox.BUTTON_FADE_DELAY)));
+        buttonOptions.addAction(sequence(fadeOut(0.0f), delay(SandBox.BUTTON_FADE_DELAY), fadeIn(SandBox.BUTTON_FADE_DELAY)));
+        buttonAbout.addAction(sequence(fadeOut(0.0f), delay(2 * SandBox.BUTTON_FADE_DELAY), fadeIn(SandBox.BUTTON_FADE_DELAY)));
 
         // Define layout
         float buttonWidth = 100;

@@ -81,6 +81,7 @@ public class LevelScreen extends ScreenAdapter {
         buttonNext = new TextButton("Next", SandBox.skin, "default");
         buttonPrev = new TextButton("Prev", SandBox.skin, "default");
 
+        buttonBack.addAction(sequence(fadeOut(0.0f), fadeIn(SandBox.BUTTON_FADE_DELAY)));
         buttonNext.addAction(fadeOut(0.0f));
         buttonPrev.addAction(fadeOut(0.0f));
 
@@ -166,17 +167,17 @@ public class LevelScreen extends ScreenAdapter {
         }
 
         if (page == 0) {
-            buttonPrev.addAction(fadeOut(0.5f));
+            buttonPrev.addAction(fadeOut(SandBox.BUTTON_FADE_DELAY));
             buttonPrev.setDisabled(true);
         } else {
-            buttonPrev.addAction(fadeIn(0.5f));
+            buttonPrev.addAction(fadeIn(SandBox.BUTTON_FADE_DELAY));
             buttonPrev.setDisabled(false);
         }
         if (page >= (float) levelOverviews.size() / (cols * rows) - 1) {
-            buttonNext.addAction(fadeOut(0.5f));
+            buttonNext.addAction(fadeOut(SandBox.BUTTON_FADE_DELAY));
             buttonNext.setDisabled(true);
         } else {
-            buttonNext.addAction(fadeIn(0.5f));
+            buttonNext.addAction(fadeIn(SandBox.BUTTON_FADE_DELAY));
             buttonNext.setDisabled(false);
         }
     }

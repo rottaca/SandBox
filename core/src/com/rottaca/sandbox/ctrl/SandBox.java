@@ -46,6 +46,8 @@ public class SandBox extends Game {
 
     private static TextureAtlas bulletExplusionTextureAtlas;
 
+    public static final float BUTTON_FADE_DELAY = 0.25f;
+
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);

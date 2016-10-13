@@ -13,6 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.rottaca.sandbox.ctrl.SandBox;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+
 /**
  * Created by Andreas on 10.09.2016.
  */
@@ -48,6 +53,8 @@ public class AboutScreen extends ScreenAdapter {
 
         label = new Label("Development\nAndreas Rottach\nBackground Music\nwww.bensound.com\nSound Effects\nwww.soundbible.com", SandBox.skin, "defaultBlack");
         buttonBack = new TextButton("Back", SandBox.skin, "default");
+        label.addAction(sequence(fadeOut(0.0f), fadeIn(SandBox.BUTTON_FADE_DELAY)));
+        buttonBack.addAction(sequence(fadeOut(0.0f), delay(SandBox.BUTTON_FADE_DELAY), fadeIn(SandBox.BUTTON_FADE_DELAY)));
 
         // Define layout
         table.add(label);

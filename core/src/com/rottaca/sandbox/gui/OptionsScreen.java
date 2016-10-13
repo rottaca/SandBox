@@ -13,6 +13,11 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.rottaca.sandbox.ctrl.ConfigLoader;
 import com.rottaca.sandbox.ctrl.SandBox;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+
 /**
  * Created by Andreas on 10.09.2016.
  */
@@ -53,6 +58,10 @@ public class OptionsScreen extends ScreenAdapter {
         buttonBack = new TextButton("Back", SandBox.skin, "default");
         buttonToggleBackgroundMusic = new TextButton("Music: ON", SandBox.skin, "default");
         buttonToggleSoundEffects = new TextButton("Effects: ON", SandBox.skin, "default");
+
+        buttonToggleBackgroundMusic.addAction(sequence(fadeOut(0.0f), fadeIn(SandBox.BUTTON_FADE_DELAY)));
+        buttonToggleSoundEffects.addAction(sequence(fadeOut(0.0f), delay(SandBox.BUTTON_FADE_DELAY), fadeIn(SandBox.BUTTON_FADE_DELAY)));
+        buttonBack.addAction(sequence(fadeOut(0.0f), delay(2 * SandBox.BUTTON_FADE_DELAY), fadeIn(SandBox.BUTTON_FADE_DELAY)));
 
         // Update text according to options
         if (ConfigLoader.prefs.getBoolean(ConfigLoader.PREF_SOUND_BG_ENABLED))
